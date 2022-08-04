@@ -52,11 +52,11 @@ types:
     seq:
       - id: none
         type: u1
-      - id: b
+      - id: r
         type: u1
       - id: g
         type: u1
-      - id: r
+      - id: b
         type: u1
 
   bitmap_pal8:
@@ -84,6 +84,8 @@ types:
       - id: image_padding_top
         size: 8
       - id: image_data
-        size: len_image_data - 8
+        type: b8
+        repeat: expr
+        repeat-expr: len_image_data - 8
       - id: image_padding_bottom
         size: 8

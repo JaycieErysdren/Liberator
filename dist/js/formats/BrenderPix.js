@@ -100,9 +100,9 @@ var BrenderPix = (function() {
     }
     PaletteEntryT.prototype._read = function() {
       this.none = this._io.readU1();
-      this.b = this._io.readU1();
-      this.g = this._io.readU1();
       this.r = this._io.readU1();
+      this.g = this._io.readU1();
+      this.b = this._io.readU1();
     }
 
     return PaletteEntryT;
@@ -130,7 +130,11 @@ var BrenderPix = (function() {
       this.imageDataType = this._io.readS4be();
       this.lenImageData = this._io.readS4be();
       this.imagePaddingTop = this._io.readBytes(8);
-      this.imageData = this._io.readBytes((this.lenImageData - 8));
+      this.imageData = [];
+      for (var i = 0; i < (this.lenImageData - 8); i++) {
+        this.imageData.push(this._io.readBitsIntBe(8));
+      }
+      this._io.alignToByte();
       this.imagePaddingBottom = this._io.readBytes(8);
     }
 

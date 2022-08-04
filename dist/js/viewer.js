@@ -1,7 +1,117 @@
 import * as THREE from '/js/three.module.js';
 import { OrbitControls } from '/js/OrbitControls.js';
 
-export { load_lev }
+export { load_lev, load_pix }
+
+function load_pix(arrayBuffer) {
+	var pixFile = new BrenderPix(new KaitaiStream(arrayBuffer));
+
+	if (pixFile.bitmapType != 3) {
+		consoleAddMessage("<span class='error'>Error:</span> Unsupprted type in pixelmap: " + pixFile.bitmapType)
+		return
+	}
+
+	fileInfoClear()
+	fileInfoAddMessage("<span class='good'>File Type:</span> BRender Pixelmap")
+	fileInfoAddMessage("")
+	fileInfoAddMessage("<span class='good'>Pixelmap Type:</span> " + pixFile.bitmapType)
+	fileInfoAddMessage("<span class='good'>Internal Identifier:</span> " + pixFile.header.identifier)
+	fileInfoAddMessage("")
+	fileInfoAddMessage("<span class='good'>Width:</span> " + pixFile.header.width)
+	fileInfoAddMessage("<span class='good'>Height:</span> " + pixFile.header.height)
+
+	const pixPalette = pixFile.bitmap.paletteData
+	const pixData = pixFile.bitmap.imageData
+
+	const width = pixFile.header.width
+	const height = pixFile.header.height
+
+	const size = width * height
+	const data = new Uint8Array( 4 * size)
+
+	let palette = []
+
+	// compute palette
+	for (let i = 0; i < 256; i++) {
+		palette.push([
+			pixPalette[i].r,
+			pixPalette[i].g,
+			pixPalette[i].b,
+			255
+		])
+	}
+
+	// compute texture
+	for (let i = 0; i < size; i++) {
+		const stride = i * 4
+
+		data[stride] = Math.round(palette[pixData[i]][0])
+		data[stride + 1] = Math.round(palette[pixData[i]][1])
+		data[stride + 2] = Math.round(palette[pixData[i]][2])
+		data[stride + 3] = Math.round(palette[pixData[i]][3])
+	}
+
+	let spriteMap = new THREE.DataTexture(data, width, height);
+	spriteMap.needsUpdate = true;
+	spriteMap.minFilter = THREE.NearestFilter
+
+	let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
+	let spriteObject = new THREE.Sprite(spriteMaterial);
+	spriteObject.scale.set(width, height, 1)
+	spriteObject.position.x = 0
+	spriteObject.position.y = 0
+	spriteObject.position.z = 0
+
+	let camera, controls, scene, renderer;
+
+	init()
+	render()
+
+	function init() {
+		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 8192);
+		camera.position.set(width + height, 0, 0);
+		scene = new THREE.Scene();
+		scene.add(spriteObject);
+
+		scene.background = new THREE.Color(0x909090);
+
+		renderer = new THREE.WebGLRenderer({antialias: true});
+		removeChildren(document.getElementById("viewer"))
+		document.getElementById("viewer").appendChild(renderer.domElement);
+		resizeCanvasToDisplaySize()
+
+		controls = new OrbitControls( camera, renderer.domElement );
+		controls.addEventListener("change", render);
+		controls.minDistance = 128;
+		controls.maxDistance = 4096;
+		controls.maxPolarAngle = Math.PI / 2;
+	}
+
+	function removeChildren(parent) {
+		while (parent.lastChild) {
+			parent.removeChild(parent.lastChild);
+		}
+	}
+
+	function resizeCanvasToDisplaySize() {
+		const canvas = document.getElementById("viewer")
+		const width = canvas.clientWidth
+		const height = canvas.clientHeight
+	  
+		if (canvas.width !== width || canvas.height !== height) {
+			renderer.setSize(width, height)
+			camera.aspect = width / height
+			camera.updateProjectionMatrix()
+			render()
+		}
+	}
+
+	window.addEventListener("resize", resizeCanvasToDisplaySize, false );
+
+	function render() {
+		renderer.render(scene, camera);
+	}
+}
 
 function load_lev(arrayBuffer, game) {
 	if (game == "QUAKE") {
