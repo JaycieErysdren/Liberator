@@ -1,7 +1,116 @@
 import * as THREE from '/js/three.module.js';
 import { OrbitControls } from '/js/OrbitControls.js';
 
-export { load_lev, load_pix }
+export { load_lev, load_pix, load_pic }
+
+function load_pic(arrayBuffer) {
+	var picFile = new SlavedriverPicQuake(new KaitaiStream(arrayBuffer));
+
+	fileInfoClear()
+	fileInfoAddMessage("<span class='good'>File Type:</span> SlaveDriver Bitmap")
+	fileInfoAddMessage("")
+	fileInfoAddMessage("<span class='good'>Width:</span> " + picFile.width)
+	fileInfoAddMessage("<span class='good'>Height:</span> " + picFile.height)
+
+	const picPalette = picFile.palette
+	const picData = picFile.bitmap
+
+	const width = picFile.width
+	const height = picFile.height
+
+	const size = width * height
+	const data = new Uint8Array(4 * size)
+
+	let palette = []
+
+	// compute palette
+	for (let i = 0; i < 256; i++) {
+		palette.push([
+			Math.round((picPalette[i].r / 31) * 255),
+			Math.round((picPalette[i].g / 31) * 255),
+			Math.round((picPalette[i].b / 31) * 255),
+			Math.round(picPalette[i].a * 255)
+		])
+	}
+
+	let i = 0
+
+	// compute texture, accounting for big endian
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			let stride = i * 4
+			let pos = ((height - y - 1) * width) + x
+
+			data[stride] = palette[picData[pos]][0]
+			data[stride + 1] = palette[picData[pos]][1]
+			data[stride + 2] = palette[picData[pos]][2]
+			data[stride + 3] = palette[picData[pos]][3]
+
+			i += 1
+		}
+	}
+
+	let spriteMap = new THREE.DataTexture(data, width, height);
+	spriteMap.needsUpdate = true;
+	spriteMap.minFilter = THREE.NearestFilter
+
+	let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
+	let spriteObject = new THREE.Sprite(spriteMaterial);
+	spriteObject.scale.set(width, height, 1)
+	spriteObject.position.x = 0
+	spriteObject.position.y = 0
+	spriteObject.position.z = 0
+
+	let camera, controls, scene, renderer;
+
+	init()
+	render()
+
+	function init() {
+		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 8192);
+		camera.position.set(width + height, 0, 0);
+		scene = new THREE.Scene();
+		scene.add(spriteObject);
+
+		scene.background = new THREE.Color(0x909090);
+
+		renderer = new THREE.WebGLRenderer({antialias: true});
+		removeChildren(document.getElementById("viewer"))
+		document.getElementById("viewer").appendChild(renderer.domElement);
+		resizeCanvasToDisplaySize()
+
+		controls = new OrbitControls( camera, renderer.domElement );
+		controls.addEventListener("change", render);
+		controls.minDistance = 128;
+		controls.maxDistance = 4096;
+		controls.maxPolarAngle = Math.PI / 2;
+	}
+
+	function removeChildren(parent) {
+		while (parent.lastChild) {
+			parent.removeChild(parent.lastChild);
+		}
+	}
+
+	function resizeCanvasToDisplaySize() {
+		const canvas = document.getElementById("viewer")
+		const width = canvas.clientWidth
+		const height = canvas.clientHeight
+	  
+		if (canvas.width !== width || canvas.height !== height) {
+			renderer.setSize(width, height)
+			camera.aspect = width / height
+			camera.updateProjectionMatrix()
+			render()
+		}
+	}
+
+	window.addEventListener("resize", resizeCanvasToDisplaySize, false );
+
+	function render() {
+		renderer.render(scene, camera);
+	}
+}
 
 function load_pix(arrayBuffer) {
 	var pixFile = new BrenderPix(new KaitaiStream(arrayBuffer));
@@ -34,9 +143,9 @@ function load_pix(arrayBuffer) {
 	// compute palette
 	for (let i = 0; i < 256; i++) {
 		palette.push([
-			pixPalette[i].r,
-			pixPalette[i].g,
-			pixPalette[i].b,
+			Math.round(pixPalette[i].r),
+			Math.round(pixPalette[i].g),
+			Math.round(pixPalette[i].b),
 			255
 		])
 	}
@@ -45,10 +154,10 @@ function load_pix(arrayBuffer) {
 	for (let i = 0; i < size; i++) {
 		const stride = i * 4
 
-		data[stride] = Math.round(palette[pixData[i]][0])
-		data[stride + 1] = Math.round(palette[pixData[i]][1])
-		data[stride + 2] = Math.round(palette[pixData[i]][2])
-		data[stride + 3] = Math.round(palette[pixData[i]][3])
+		data[stride] = palette[pixData[i]][0]
+		data[stride + 1] = palette[pixData[i]][1]
+		data[stride + 2] = palette[pixData[i]][2]
+		data[stride + 3] = palette[pixData[i]][3]
 	}
 
 	let spriteMap = new THREE.DataTexture(data, width, height);
@@ -268,7 +377,7 @@ function load_lev(arrayBuffer, game) {
 	}
 
 	fileInfoClear()
-	fileInfoAddMessage("<span class='good'>File Type:</span> SlaveDriver Engine Level")
+	fileInfoAddMessage("<span class='good'>File Type:</span> SlaveDriver Level")
 	fileInfoAddMessage("")
 	fileInfoAddMessage("<span class='good'>Internal Level Name:</span> " + levFile.levelName)
 	fileInfoAddMessage("")

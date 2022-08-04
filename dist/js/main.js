@@ -46,11 +46,14 @@ function parseFile(filename, arrayBuffer) {
 	consoleAddMessage("<span class='good'>Loaded File:</span> " + filename)
 	let ext = filename.split(".").pop()
 	if (ext == "LEV" || ext == "lev") {
-		consoleAddMessage("<span class='good'>Assuming File Type:</span> SlaveDriver Engine Level")
+		consoleAddMessage("<span class='good'>Assuming File Type:</span> SlaveDriver Level")
 		import("/js/viewer.js").then((module) => { module.load_lev(arrayBuffer, "QUAKE") })
 	} else if (ext == "PIX" || ext == "pix") {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> BRender Pixelmap")
 		import("/js/viewer.js").then((module) => { module.load_pix(arrayBuffer) })
+	} else if (ext == "PIC" || ext == "pic") {
+		consoleAddMessage("<span class='good'>Assuming File Type:</span> SlaveDriver Bitmap")
+		import("/js/viewer.js").then((module) => { module.load_pic(arrayBuffer) })
 	} else {
 		consoleAddMessage("<span class='error'>Error:</span> Couldn't determine file type.")
 	}
