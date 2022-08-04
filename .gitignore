@@ -1,4 +1,8 @@
-*__pycache__
+# build files
 /src-tauri/target/
+
+# dependencies
 /node_modules/
+
+# example files
 /test_files/

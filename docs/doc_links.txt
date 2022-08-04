@@ -1,0 +1,15 @@
+https://tauri.app/v1/guides/architecture/inter-process-communication/#commands
+https://tauri.app/v1/api/js/modules/dialog
+https://tauri.app/v1/api/config/#buildconfig.withglobaltauri
+https://tauri.app/v1/api/js/modules/fs/
+https://tauri.app/v1/api/js/modules/path/
+https://tauri.app/v1/guides/features/menu/
+https://tauri.app/v1/guides/features/events/
+https://tauri.app/v1/guides/features/splashscreen
+https://tauri.app/v1/guides/features/menu/
+https://stackoverflow.com/questions/20290402/three-js-resizing-canvas
+https://stackoverflow.com/questions/36668836/threejs-displaying-a-2d-image
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import
+https://stackoverflow.com/questions/190852/how-can-i-get-file-extensions-with-javascript
+https://cssgrid-generator.netlify.app/
+
