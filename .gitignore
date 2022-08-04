@@ -1,2 +1,4 @@
-/cmake-build-*/
 *__pycache__
+/src-tauri/target/
+/node_modules/
+/test_files/

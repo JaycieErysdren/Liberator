@@ -21,7 +21,7 @@ seq:
   - id: tiles
     type: tile_t
     repeat: expr
-    repeat-expr: header.num_tile_entries
+    repeat-expr: header.num_tiles
   - id: vertices
     type: vertex_t
     repeat: expr
@@ -120,7 +120,7 @@ types:
         type: u4
       - id: len_tile_texture_data
         type: u4
-      - id: num_tile_entries
+      - id: num_tiles
         type: u4
       - id: len_tile_color_data
         type: u4
