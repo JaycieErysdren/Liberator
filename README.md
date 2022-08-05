@@ -11,6 +11,10 @@ Liberator is a cross-platform, open-source file viewer powered by Tauri, three.j
 
 Currently, only viewing the asset is supported.
 
+## Contributing
+
+Want to contribute? Feel free to make a pull request with your format thoroughly documented in a KaitaiStruct YAML file (KSY). If you take the time to write the parser in /dist/js/viewer.js, even better!
+
 ## Contributors
 
 - Jaycie Erysdren
@@ -20,6 +24,14 @@ Currently, only viewing the asset is supported.
 - vfig
 - ReyeMe
 - Rich Whitehouse
+
+## Building
+
+TODO: Flesh this out more.
+
+Prerequisites: See [this page][https://tauri.app/v1/guides/getting-started/prerequisites] on tauri.app 
+
+Instructions: See [this page][https://tauri.app/v1/guides/getting-started/setup/html-css-js] on tauri.app
 
 ## Images
 
