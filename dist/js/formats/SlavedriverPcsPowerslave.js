@@ -18,8 +18,9 @@ var SlavedriverPcsPowerslave = (function() {
     this._read();
   }
   SlavedriverPcsPowerslave.prototype._read = function() {
+    this.lenBitmaps = this._io.readU4be();
     this.bitmaps = [];
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < Math.floor(this.lenBitmaps / 77328); i++) {
       this.bitmaps.push(new BitmapT(this._io, this, this._root));
     }
   }
@@ -33,7 +34,6 @@ var SlavedriverPcsPowerslave = (function() {
       this._read();
     }
     BitmapT.prototype._read = function() {
-      this.unknown01 = this._io.readU4be();
       this.numBitmap = this._io.readU4be();
       this.width = this._io.readU4be();
       this.height = this._io.readU4be();
@@ -42,6 +42,7 @@ var SlavedriverPcsPowerslave = (function() {
         this.bitmap.push(this._io.readBitsIntBe(8));
       }
       this._io.alignToByte();
+      this.paddingBottom = this._io.readU4be();
       this.palette = [];
       for (var i = 0; i < 256; i++) {
         this.palette.push(new PaletteEntryT(this._io, this, this._root));

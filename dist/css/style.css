@@ -80,7 +80,16 @@ html {
 	margin: 8pt;
 }
 
-#viewer { grid-area: 1 / 4 / 4 / 5; }
+#viewer {
+	grid-area: 1 / 4 / 4 / 5;
+}
+
+#viewer-controls {
+	max-height: 50vh;
+	position: absolute;
+	left: 52vw;
+	top: 16pt;
+}
 
 #console-container {
 	grid-area: 4 / 4 / 5 / 5;

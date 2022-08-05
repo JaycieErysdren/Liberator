@@ -5,16 +5,16 @@ meta:
   bit-endian: be
 
 seq:
+  - id: len_bitmaps
+    type: u4
   - id: bitmaps
     type: bitmap_t
     repeat: expr
-    repeat-expr: 2
+    repeat-expr: len_bitmaps / 77328
 
 types:
   bitmap_t:
     seq:
-      - id: unknown01
-        type: u4
       - id: num_bitmap
         type: u4
       - id: width
@@ -25,6 +25,8 @@ types:
         type: b8
         repeat: expr
         repeat-expr: num_bitmap
+      - id: padding_bottom
+        type: u4
       - id: palette
         type: palette_entry_t
         repeat: expr

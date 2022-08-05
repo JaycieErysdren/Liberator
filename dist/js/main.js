@@ -68,6 +68,9 @@ function parseFile(filename, arrayBuffer) {
 	} else if (ext == "PIC" || ext == "pic") {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> SlaveDriver Bitmap")
 		import("/js/viewer.js").then((module) => { module.load_pic(arrayBuffer) })
+	} else if (ext == "PCS" || ext == "pcs") {
+		consoleAddMessage("<span class='good'>Assuming File Type:</span> SlaveDriver Bitmap")
+		import("/js/viewer.js").then((module) => { module.load_pcs(arrayBuffer) })
 	} else if (ext == "TMF" || ext == "tmf") {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> Tank Engine Model")
 		import("/js/viewer.js").then((module) => { module.load_tmf(arrayBuffer) })
@@ -90,7 +93,7 @@ function openFile() {
 		multiple: false,
 		filters: [{
 			name: "Supported Formats",
-			extensions: ["lev", "pic", "pix", "tmf", "LEV", "PIC", "PIX", "TMF"]
+			extensions: ["lev", "pic", "pix", "pcs", "tmf", "LEV", "PIC", "PIX", "PCS", "TMF"]
 		}]
 	}).then((filename) => selectFile(filename))
 }

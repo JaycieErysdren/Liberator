@@ -1,11 +1,27 @@
-import * as THREE from '/js/three.module.js';
-import { OrbitControls } from '/js/OrbitControls.js';
+import * as THREE from '/js/three.module.js'
+import { OrbitControls } from '/js/OrbitControls.js'
+import { GUI } from "/js/lil-gui.module.min.js"
 
 export {
 	load_lev, // SlaveDriver Engine level
 	load_pix, // BRender Engine pixelmap
-	load_pic, // SlaveDriver Engine bitmap
+	load_pic, // SlaveDriver Engine bitmap (quake)
+	load_pcs, // SlaveDriver Engine bitmap (powerslave)
 	load_tmf, // Tank Engine model
+}
+
+function construct_gui_panel() {
+
+	const panel = new GUI( { autoPlace: false } )
+	panel.domElement.id = "viewer-controls"
+	document.getElementById("viewer").appendChild(panel.domElement)
+	const folder1 = panel.addFolder("visibility")
+
+	let settings = {
+		"show asset": true
+	}
+
+	folder1.add(settings, "show asset")
 }
 
 function construct_scene(object_array, campos, camdist) {
@@ -131,6 +147,68 @@ function load_tmf(arrayBuffer) {
 	tmfGroup.scale.copy(scale);
 
 	construct_scene([tmfGroup], [32, 32, 32], [2, 64])
+}
+
+function load_pcs(arrayBuffer) {
+	var pcsFile = new SlavedriverPcsPowerslave(new KaitaiStream(arrayBuffer));
+
+	fileInfoClear()
+	fileInfoAddMessage("<span class='good'>File Type:</span> SlaveDriver Bitmap")
+	fileInfoAddMessage("")
+	fileInfoAddMessage("<span class='good'>Width:</span> " + pcsFile.bitmaps[0].width)
+	fileInfoAddMessage("<span class='good'>Height:</span> " + pcsFile.bitmaps[0].height)
+
+	const pcsPalette = pcsFile.bitmaps[0].palette
+	const pcsData = pcsFile.bitmaps[0].bitmap
+
+	const width = pcsFile.bitmaps[0].width
+	const height = pcsFile.bitmaps[0].height
+
+	const size = width * height
+	const data = new Uint8Array(4 * size)
+
+	let palette = []
+
+	// compute palette
+	for (let i = 0; i < 256; i++) {
+		palette.push([
+			Math.round((pcsPalette[i].r / 31) * 255),
+			Math.round((pcsPalette[i].g / 31) * 255),
+			Math.round((pcsPalette[i].b / 31) * 255),
+			Math.round(pcsPalette[i].a * 255)
+		])
+	}
+
+	let i = 0
+
+	// compute texture, accounting for big endian
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			let stride = i * 4
+			let pos = ((height - y - 1) * width) + x
+
+			data[stride] = palette[pcsData[pos]][0]
+			data[stride + 1] = palette[pcsData[pos]][1]
+			data[stride + 2] = palette[pcsData[pos]][2]
+			data[stride + 3] = palette[pcsData[pos]][3]
+
+			i += 1
+		}
+	}
+
+	let spriteMap = new THREE.DataTexture(data, width, height);
+	spriteMap.needsUpdate = true;
+	spriteMap.minFilter = THREE.NearestFilter
+
+	let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
+	let spriteObject = new THREE.Sprite(spriteMaterial);
+	spriteObject.scale.set(width, height, 1)
+	spriteObject.position.x = 0
+	spriteObject.position.y = 0
+	spriteObject.position.z = 0
+
+	construct_scene([spriteObject], [width + height, 0, 0], [128, 4096])
+	//construct_gui_panel()
 }
 
 function load_pic(arrayBuffer) {

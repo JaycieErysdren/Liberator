@@ -4,6 +4,9 @@ meta:
     endian: le
     bit-endian: le
 
+doc: Microsoft 3D Movie Maker Chunky File.
+doc-ref: https://github.com/foone/lib3dmm/blob/master/lib3dmm.py
+
 seq:
   - id: file_header
     type: file_header_t
