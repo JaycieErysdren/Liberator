@@ -1,10 +1,10 @@
 meta:
-    id: ms3dmm_chunky
+    id: ms3dmm_chunk
     file-extension: 3dmm
     endian: le
     bit-endian: le
 
-doc: Microsoft 3D Movie Maker Chunky File.
+doc: Microsoft 3D Movie Maker Chunk File.
 doc-ref: https://github.com/foone/lib3dmm/blob/master/lib3dmm.py
 
 seq:
@@ -32,9 +32,9 @@ types:
         type: str
         encoding: ASCII
         size: 4
-      - id: chunky_version_current
+      - id: chunk_version_current
         type: u2
-      - id: chunky_version_minimum
+      - id: chunk_version_minimum
         type: u2
       - id: byte_order
         type: u2
@@ -73,7 +73,8 @@ types:
   chunk_data_t:
     seq:
       - id: data
-        size-eos: true
+        type: u1
+        repeat: eos
 
   chunks_t:
     seq:
@@ -101,10 +102,11 @@ types:
       - id: remaining_data
         size-eos: true
     instances:
-      get_chunk_data:
+      chunk_data:
         io: _root._io
         pos: ofs_chunk_data
         size: len_chunk_data
+        type: chunk_data_t
 
   chunk_index_t:
     seq:
@@ -113,7 +115,7 @@ types:
       - id: len_chunk
         type: u4
     instances:
-      get_chunk:
+      chunk:
         io: _root.chunks._io
         pos: ofs_chunk
         size: len_chunk

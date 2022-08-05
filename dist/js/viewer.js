@@ -8,6 +8,7 @@ export {
 	load_pic, // SlaveDriver Engine bitmap (quake)
 	load_pcs, // SlaveDriver Engine bitmap (powerslave)
 	load_tmf, // Tank Engine model
+	load_ms3dmm_chunk, // Microsoft 3D Movie Maker Chunk
 }
 
 function construct_gui_panel() {
@@ -76,6 +77,72 @@ function construct_scene(object_array, campos, camdist) {
 
 	function render() {
 		renderer.render(scene, camera)
+	}
+}
+
+function load_ms3dmm_chunk(arrayBuffer, filename) {
+	var chunkFile = new Ms3dmmChunk(new KaitaiStream(arrayBuffer));
+
+	// parse chunk indexes
+
+	const chunkIndex = chunkFile.chunkIndex
+
+	function display_palette(chunk) {
+		let chunkPalette = chunk.chunkData.data
+
+		let width = 16
+		let height = 16
+
+		let size = width * height
+		let data = new Uint8Array(4 * size)
+
+		let i = 0
+
+		// compute texture, accounting for big endian
+		for (let y = 0; y < height; y++) {
+			for (let x = 0; x < height; x++) {
+				let stride = i * 4
+				let pos = (((height - y - 1) * width) + x) * 4
+
+				data[stride] = chunkPalette[pos]
+				data[stride + 1] = chunkPalette[pos] + 1
+				data[stride + 2] = chunkPalette[pos] + 2
+				data[stride + 3] = 255
+
+				i += 1
+			}
+		}
+
+		// compute texture
+		for (let i = 0; i < size; i++) {
+			let stride = i * 4
+
+			data[stride] = chunkPalette[stride]
+			data[stride + 1] = chunkPalette[stride + 1]
+			data[stride + 2] = chunkPalette[stride + 2]
+			data[stride + 3] = 255
+		}
+
+		let spriteMap = new THREE.DataTexture(data, width, height);
+		spriteMap.needsUpdate = true;
+		spriteMap.minFilter = THREE.NearestFilter
+	
+		let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
+		let spriteObject = new THREE.Sprite(spriteMaterial);
+		spriteObject.scale.set(width, height, 1)
+		spriteObject.position.x = 0
+		spriteObject.position.y = 0
+		spriteObject.position.z = 0
+	
+		construct_scene([spriteObject], [width + height, 0, 0], [128, 4096])
+	}
+
+	for (let i = 0; i < chunkFile.fileIndex.numChunks; i++) {
+		let chunk = chunkIndex[i].chunk
+		console.log(chunk.authorProgram)
+		if (chunk.authorProgram == "RCLG") {
+			display_palette(chunk)
+		}
 	}
 }
 

@@ -62,6 +62,9 @@ function parseFile(filepath, arrayBuffer) {
 	} else if (ext == "TMF" || ext == "tmf") {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> Tank Engine Model")
 		import("/js/viewer.js").then((module) => { module.load_tmf(arrayBuffer, filename) })
+	} else if (ext == "CHK" || ext == "chk") {
+		consoleAddMessage("<span class='good'>Assuming File Type:</span> Microsft 3D Movie Maker Chunk")
+		import("/js/viewer.js").then((module) => { module.load_ms3dmm_chunk(arrayBuffer, filename) })
 	} else {
 		consoleAddMessage("<span class='error'>Error:</span> Couldn't determine file type.")
 	}
@@ -81,7 +84,7 @@ function openFile() {
 		multiple: false,
 		filters: [{
 			name: "Supported Formats",
-			extensions: ["lev", "pic", "pix", "pcs", "tmf", "LEV", "PIC", "PIX", "PCS", "TMF"]
+			extensions: ["lev", "pic", "pix", "pcs", "tmf", "chk", "LEV", "PIC", "PIX", "PCS", "TMF", "CHK"]
 		}]
 	}).then((filename) => selectFile(filename))
 }
