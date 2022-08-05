@@ -22,6 +22,20 @@ function initWindow() {
 		let func = menuBarButtons[i].dataset.func
 		menuBarButtons[i].addEventListener("click", function() { menuBarCall(func); })
 	}
+
+	// testing, ignore
+
+	//let test_array_header = [
+	//	"unknown01", "unknown02", "numSectors", "numPlanes",
+	//	"numVertices", "numQuads", "lenTileTextureData", "numTiles",
+	//	"lenTileColorData", "numEntities", "lenEntityData", "numEntityPolylinks",
+	//	"numEntityPolylinkData1Segments", "numEntityPolylinkData2Segments", "numUnknown",
+	//]
+
+	//let test_array = ["skyData", "header", test_array_header, "sectors"]
+
+	//let filestructure_root = fileStructureTreeStart("file-structure-tree", "TITLE.LEV")
+	//fileStructureTreeCreate(filestructure_root, test_array)
 }
 
 //
@@ -54,6 +68,9 @@ function parseFile(filename, arrayBuffer) {
 	} else if (ext == "PIC" || ext == "pic") {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> SlaveDriver Bitmap")
 		import("/js/viewer.js").then((module) => { module.load_pic(arrayBuffer) })
+	} else if (ext == "TMF" || ext == "tmf") {
+		consoleAddMessage("<span class='good'>Assuming File Type:</span> Tank Engine Model")
+		import("/js/viewer.js").then((module) => { module.load_tmf(arrayBuffer) })
 	} else {
 		consoleAddMessage("<span class='error'>Error:</span> Couldn't determine file type.")
 	}
@@ -73,7 +90,7 @@ function openFile() {
 		multiple: false,
 		filters: [{
 			name: "Supported Formats",
-			extensions: ["lev", "pic", "pix", "LEV", "PIC", "PIX"]
+			extensions: ["lev", "pic", "pix", "tmf", "LEV", "PIC", "PIX", "TMF"]
 		}]
 	}).then((filename) => selectFile(filename))
 }
@@ -84,6 +101,8 @@ function consoleAddMessage(message) {
 	console.innerHTML += message + "<br>"
 	container.scrollTop = container.scrollHeight
 }
+
+// file info
 
 function fileInfoClear() {
 	let infobox = document.getElementById("file-info")
@@ -96,3 +115,36 @@ function fileInfoAddMessage(message) {
 	infobox.innerHTML += message + "<br>"
 	container.scrollTop = container.scrollHeight
 }
+
+// file structure tree
+
+function clearHTMLbyID(item) {
+	let container = document.getElementById(item)
+	container.innerHTML = ""
+}
+
+function fileStructureTreeStart(id, message) {
+	let container = document.getElementById(id)
+	let ul = document.createElement("ul")
+	let li = document.createElement("li")
+	li.appendChild(document.createTextNode(message))
+	ul.appendChild(li)
+	container.appendChild(ul)
+
+	return ul
+}
+
+function fileStructureTreeCreate(root, array) {
+	let ul = document.createElement("ul")
+	let li
+	root.appendChild(ul)
+	array.forEach(function(item) {
+		if (Array.isArray(item)) {
+			fileStructureTreeCreate(li, item)
+		} else {
+			li = document.createElement("li")
+			li.appendChild(document.createTextNode(item))
+			ul.appendChild(li)	
+		}
+	})
+ }

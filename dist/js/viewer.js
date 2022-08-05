@@ -1,7 +1,137 @@
 import * as THREE from '/js/three.module.js';
 import { OrbitControls } from '/js/OrbitControls.js';
 
-export { load_lev, load_pix, load_pic }
+export {
+	load_lev, // SlaveDriver Engine level
+	load_pix, // BRender Engine pixelmap
+	load_pic, // SlaveDriver Engine bitmap
+	load_tmf, // Tank Engine model
+}
+
+function construct_scene(object_array, campos, camdist) {
+	let camera, controls, scene, renderer;
+
+	init()
+	render()
+
+	function init() {
+		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 8192)
+		camera.position.set(campos[0], campos[1], campos[2])
+		scene = new THREE.Scene()
+
+		object_array.forEach(function(item) {
+			scene.add(item)
+		})
+
+		scene.background = new THREE.Color(0x909090)
+
+		renderer = new THREE.WebGLRenderer({antialias: true})
+		removeChildren(document.getElementById("viewer"))
+		document.getElementById("viewer").appendChild(renderer.domElement)
+		resizeCanvasToDisplaySize()
+
+		controls = new OrbitControls( camera, renderer.domElement )
+		controls.addEventListener("change", render)
+		controls.minDistance = camdist[0]
+		controls.maxDistance = camdist[1]
+		controls.maxPolarAngle = Math.PI / 2
+	}
+
+	function removeChildren(parent) {
+		while (parent.lastChild) {
+			parent.removeChild(parent.lastChild)
+		}
+	}
+
+	function resizeCanvasToDisplaySize() {
+		const canvas = document.getElementById("viewer")
+		const width = canvas.clientWidth
+		const height = canvas.clientHeight
+	  
+		if (canvas.width !== width || canvas.height !== height) {
+			renderer.setSize(width, height)
+			camera.aspect = width / height
+			camera.updateProjectionMatrix()
+			render()
+		}
+	}
+
+	window.addEventListener("resize", resizeCanvasToDisplaySize, false )
+
+	function render() {
+		renderer.render(scene, camera)
+	}
+}
+
+function load_tmf(arrayBuffer) {
+	var tmfFile = new TankengineTmf(new KaitaiStream(arrayBuffer));
+
+	fileInfoClear()
+	fileInfoAddMessage("<span class='good'>File Type:</span> Tank Engine Model")
+	fileInfoAddMessage("")
+	fileInfoAddMessage("<span class='good'>Textures:</span> " + tmfFile.header.numTextures)
+	fileInfoAddMessage("<span class='good'>Meshes:</span> " + tmfFile.header.numMeshes)
+
+	// three.js objects
+	let tmfGroup = new THREE.Group()
+
+	// input data
+	const tmfMeshes = tmfFile.meshes
+	const tmfTextures = tmfFile.textures
+
+	for (let meshNum = 0; meshNum < tmfFile.header.numMeshes; meshNum++) {
+		let tmfSubMesh = tmfMeshes[meshNum]
+
+		let uvs = []
+		let verts = []
+
+		let verts_temp = []
+
+		// xyz then xya
+
+		for (let vertexNum = 0; vertexNum < tmfSubMesh.header.numVertices; vertexNum++) {
+			let coords = tmfSubMesh.vertices[vertexNum].coords
+			verts_temp.push([coords[0], coords[1], coords[2]])
+		}
+
+		console.log(verts_temp)
+
+		for (let quadNum = 0; quadNum < tmfSubMesh.header.numQuads; quadNum++) {
+			let quad = tmfSubMesh.quads[quadNum]
+			let x = verts_temp[quad.vertexIndices[0]]
+			let y = verts_temp[quad.vertexIndices[1]]
+			let z = verts_temp[quad.vertexIndices[2]]
+			let a = verts_temp[quad.vertexIndices[3]]
+			// first tri
+			verts.push(x[0] / 65536, x[1] / 65536, x[2] / 65536)
+			verts.push(y[0] / 65536, y[1] / 65536, y[2] / 65536)
+			verts.push(z[0] / 65536, z[1] / 65536, z[2] / 65536)
+			// second tri
+			verts.push(x[0] / 65536, x[1] / 65536, x[2] / 65536)
+			verts.push(z[0] / 65536, z[1] / 65536, z[2] / 65536)
+			verts.push(a[0] / 65536, a[1] / 65536, a[2] / 65536)
+		}
+
+		let threeVertices = new Float32Array(verts)
+		let threeUVs = new Float32Array(uvs)
+
+		console.log(threeVertices)
+
+		let tmfGeometry = new THREE.BufferGeometry()
+		tmfGeometry.setAttribute("position", new THREE.BufferAttribute(threeVertices, 3));
+
+		let tmfMaterial = new THREE.MeshBasicMaterial()
+		let tmfMesh = new THREE.Mesh(tmfGeometry, tmfMaterial);
+		tmfMesh.updateMatrix();
+
+		tmfGroup.add(tmfMesh)
+	}
+
+	let scale = new THREE.Vector3(1, -1, 1)
+	tmfGroup.scale.copy(scale);
+
+	construct_scene([tmfGroup], [32, 32, 32], [2, 64])
+}
 
 function load_pic(arrayBuffer) {
 	var picFile = new SlavedriverPicQuake(new KaitaiStream(arrayBuffer));
@@ -61,55 +191,7 @@ function load_pic(arrayBuffer) {
 	spriteObject.position.y = 0
 	spriteObject.position.z = 0
 
-	let camera, controls, scene, renderer;
-
-	init()
-	render()
-
-	function init() {
-		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 8192);
-		camera.position.set(width + height, 0, 0);
-		scene = new THREE.Scene();
-		scene.add(spriteObject);
-
-		scene.background = new THREE.Color(0x909090);
-
-		renderer = new THREE.WebGLRenderer({antialias: true});
-		removeChildren(document.getElementById("viewer"))
-		document.getElementById("viewer").appendChild(renderer.domElement);
-		resizeCanvasToDisplaySize()
-
-		controls = new OrbitControls( camera, renderer.domElement );
-		controls.addEventListener("change", render);
-		controls.minDistance = 128;
-		controls.maxDistance = 4096;
-		controls.maxPolarAngle = Math.PI / 2;
-	}
-
-	function removeChildren(parent) {
-		while (parent.lastChild) {
-			parent.removeChild(parent.lastChild);
-		}
-	}
-
-	function resizeCanvasToDisplaySize() {
-		const canvas = document.getElementById("viewer")
-		const width = canvas.clientWidth
-		const height = canvas.clientHeight
-	  
-		if (canvas.width !== width || canvas.height !== height) {
-			renderer.setSize(width, height)
-			camera.aspect = width / height
-			camera.updateProjectionMatrix()
-			render()
-		}
-	}
-
-	window.addEventListener("resize", resizeCanvasToDisplaySize, false );
-
-	function render() {
-		renderer.render(scene, camera);
-	}
+	construct_scene([spriteObject], [width + height, 0, 0], [128, 4096])
 }
 
 function load_pix(arrayBuffer) {
@@ -171,55 +253,7 @@ function load_pix(arrayBuffer) {
 	spriteObject.position.y = 0
 	spriteObject.position.z = 0
 
-	let camera, controls, scene, renderer;
-
-	init()
-	render()
-
-	function init() {
-		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 8192);
-		camera.position.set(width + height, 0, 0);
-		scene = new THREE.Scene();
-		scene.add(spriteObject);
-
-		scene.background = new THREE.Color(0x909090);
-
-		renderer = new THREE.WebGLRenderer({antialias: true});
-		removeChildren(document.getElementById("viewer"))
-		document.getElementById("viewer").appendChild(renderer.domElement);
-		resizeCanvasToDisplaySize()
-
-		controls = new OrbitControls( camera, renderer.domElement );
-		controls.addEventListener("change", render);
-		controls.minDistance = 128;
-		controls.maxDistance = 4096;
-		controls.maxPolarAngle = Math.PI / 2;
-	}
-
-	function removeChildren(parent) {
-		while (parent.lastChild) {
-			parent.removeChild(parent.lastChild);
-		}
-	}
-
-	function resizeCanvasToDisplaySize() {
-		const canvas = document.getElementById("viewer")
-		const width = canvas.clientWidth
-		const height = canvas.clientHeight
-	  
-		if (canvas.width !== width || canvas.height !== height) {
-			renderer.setSize(width, height)
-			camera.aspect = width / height
-			camera.updateProjectionMatrix()
-			render()
-		}
-	}
-
-	window.addEventListener("resize", resizeCanvasToDisplaySize, false );
-
-	function render() {
-		renderer.render(scene, camera);
-	}
+	construct_scene([spriteObject], [width + height, 0, 0], [128, 4096])
 }
 
 function load_lev(arrayBuffer, game) {
@@ -532,54 +566,5 @@ function load_lev(arrayBuffer, game) {
 	levGroup.scale.copy(scale);
 	new THREE.Box3().setFromObject( levGroup ).getCenter( levGroup.position ).multiplyScalar( - 1 );
 
-	// init three.js
-
-	let camera, controls, scene, renderer;
-
-	init();
-	render();
-
-	function removeChildren(parent) {
-		while (parent.lastChild) {
-			parent.removeChild(parent.lastChild);
-		}
-	}
-
-	function init() {
-		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 8192);
-		camera.position.set(1024, 1024, 1024);
-		scene = new THREE.Scene();
-		scene.add(levGroup);
-
-		scene.background = new THREE.Color(0x909090);
-
-		renderer = new THREE.WebGLRenderer({antialias: true});
-		removeChildren(document.getElementById("viewer"))
-		document.getElementById("viewer").appendChild(renderer.domElement);
-		resizeCanvasToDisplaySize()
-		controls = new OrbitControls( camera, renderer.domElement );
-		controls.addEventListener("change", render);
-		controls.minDistance = 128;
-		controls.maxDistance = 4096;
-		controls.maxPolarAngle = Math.PI / 2;
-	}
-
-	function resizeCanvasToDisplaySize() {
-		const canvas = document.getElementById("viewer")
-		const width = canvas.clientWidth
-		const height = canvas.clientHeight
-	  
-		if (canvas.width !== width || canvas.height !== height) {
-			renderer.setSize(width, height)
-			camera.aspect = width / height
-			camera.updateProjectionMatrix()
-			render()
-		}
-	}
-
-	window.addEventListener("resize", resizeCanvasToDisplaySize, false );
-
-	function render() {
-		renderer.render(scene, camera);
-	}
+	construct_scene([levGroup], [1024, 1024, 1024], [128, 4096])
 }
