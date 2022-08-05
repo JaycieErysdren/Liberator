@@ -1,6 +1,6 @@
 meta:
     id: ms3dmm_chunky
-    file-extension: 3th
+    file-extension: 3dmm
     endian: le
     bit-endian: le
 
@@ -11,14 +11,15 @@ seq:
   - id: file_header
     type: file_header_t
   - id: chunk_data
-    size: file_header.ofs_file_index - 128 # file header is 128 bytes
+    type: chunk_data_t
+    size: file_header.ofs_file_index - 128
   - id: file_index
     type: file_index_t
   - id: chunks
     type: chunks_t
-    size: file_index.len_chunks
-  - id: chunk_datalinks
-    type: chunk_datalink_t
+    size: _root.file_index.len_chunks
+  - id: chunk_index
+    type: chunk_index_t
     repeat: expr
     repeat-expr: file_index.num_chunks
 
@@ -69,14 +70,15 @@ types:
       - id: un2
         type: s4
 
+  chunk_data_t:
+    seq:
+      - id: data
+        size-eos: true
+
   chunks_t:
     seq:
-      - id: definitions
-        type: chunk_t
-        repeat: expr
-        repeat-expr: _root.file_index.num_chunks
-
-  chunk_unknown: {}
+      - id: data
+        size-eos: true
 
   chunk_t:
     seq:
@@ -84,32 +86,35 @@ types:
         type: str
         encoding: ASCII
         size: 4
-      - id: chunk_id
+      - id: chunk_number
         type: u4
-      - id: ofs_references
-        type: u4
-      - id: references
-        type: chunk_references_t
-        if: ofs_references > 0 and ofs_references != 65536
-
-  chunk_references_t:
-    seq:
-      - id: mode
-        type: u1
-      - id: len_references
-        type: b24
-      - id: references_to_others
-        type: u2
-      - id: references_to_this
-        type: u2
-
-  chunk_datalink_t:
-    seq:
       - id: ofs_chunk_data
         type: u4
+      - id: grfcrp
+        type: b8
       - id: len_chunk_data
-        type: u4
+        type: b24
+      - id: num_owned_chunks
+        type: u2
+      - id: num_owner_chunks
+        type: u2
+      - id: remaining_data
+        size-eos: true
     instances:
       get_chunk_data:
+        io: _root._io
         pos: ofs_chunk_data
         size: len_chunk_data
+
+  chunk_index_t:
+    seq:
+      - id: ofs_chunk
+        type: u4
+      - id: len_chunk
+        type: u4
+    instances:
+      get_chunk:
+        io: _root.chunks._io
+        pos: ofs_chunk
+        size: len_chunk
+        type: chunk_t

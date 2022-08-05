@@ -22,20 +22,6 @@ function initWindow() {
 		let func = menuBarButtons[i].dataset.func
 		menuBarButtons[i].addEventListener("click", function() { menuBarCall(func); })
 	}
-
-	// testing, ignore
-
-	//let test_array_header = [
-	//	"unknown01", "unknown02", "numSectors", "numPlanes",
-	//	"numVertices", "numQuads", "lenTileTextureData", "numTiles",
-	//	"lenTileColorData", "numEntities", "lenEntityData", "numEntityPolylinks",
-	//	"numEntityPolylinkData1Segments", "numEntityPolylinkData2Segments", "numUnknown",
-	//]
-
-	//let test_array = ["skyData", "header", test_array_header, "sectors"]
-
-	//let filestructure_root = fileStructureTreeStart("file-structure-tree", "TITLE.LEV")
-	//fileStructureTreeCreate(filestructure_root, test_array)
 }
 
 //
@@ -51,29 +37,31 @@ function menuBarCall(func) {
 	}
 }
 
-function parseFile(filename, arrayBuffer) {
+function parseFile(filepath, arrayBuffer) {
 	if (arrayBuffer == null) {
 		consoleAddMessage("<span class='error'>Error:</span> Couldn't load file.")
 		return
 	}
 
+	let filename = filepath.split('\\').pop().split('/').pop()
+
 	consoleAddMessage("<span class='good'>Loaded File:</span> " + filename)
 	let ext = filename.split(".").pop()
 	if (ext == "LEV" || ext == "lev") {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> SlaveDriver Level")
-		import("/js/viewer.js").then((module) => { module.load_lev(arrayBuffer, "QUAKE") })
+		import("/js/viewer.js").then((module) => { module.load_lev(arrayBuffer, filename, "QUAKE") })
 	} else if (ext == "PIX" || ext == "pix") {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> BRender Pixelmap")
-		import("/js/viewer.js").then((module) => { module.load_pix(arrayBuffer) })
+		import("/js/viewer.js").then((module) => { module.load_pix(arrayBuffer, filename) })
 	} else if (ext == "PIC" || ext == "pic") {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> SlaveDriver Bitmap")
-		import("/js/viewer.js").then((module) => { module.load_pic(arrayBuffer) })
+		import("/js/viewer.js").then((module) => { module.load_pic(arrayBuffer, filename) })
 	} else if (ext == "PCS" || ext == "pcs") {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> SlaveDriver Bitmap")
-		import("/js/viewer.js").then((module) => { module.load_pcs(arrayBuffer) })
+		import("/js/viewer.js").then((module) => { module.load_pcs(arrayBuffer, filename) })
 	} else if (ext == "TMF" || ext == "tmf") {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> Tank Engine Model")
-		import("/js/viewer.js").then((module) => { module.load_tmf(arrayBuffer) })
+		import("/js/viewer.js").then((module) => { module.load_tmf(arrayBuffer, filename) })
 	} else {
 		consoleAddMessage("<span class='error'>Error:</span> Couldn't determine file type.")
 	}
@@ -107,16 +95,9 @@ function consoleAddMessage(message) {
 
 // file info
 
-function fileInfoClear() {
-	let infobox = document.getElementById("file-info")
-	infobox.innerHTML = ""
-}
-
 function fileInfoAddMessage(message) {
 	let infobox = document.getElementById("file-info")
-	let container = document.getElementById("file-info-container")
 	infobox.innerHTML += message + "<br>"
-	container.scrollTop = container.scrollHeight
 }
 
 // file structure tree
@@ -126,28 +107,46 @@ function clearHTMLbyID(item) {
 	container.innerHTML = ""
 }
 
-function fileStructureTreeStart(id, message) {
+function startTree(id, title) {
 	let container = document.getElementById(id)
-	let ul = document.createElement("ul")
-	let li = document.createElement("li")
-	li.appendChild(document.createTextNode(message))
-	ul.appendChild(li)
-	container.appendChild(ul)
+	let root_list = document.createElement("ul")
+	let title_list = document.createElement("ul")
+	let title_listitem = document.createElement("li")
+	title_listitem.appendChild(document.createTextNode(title))
+	root_list.appendChild(title_listitem)
+	title_listitem.appendChild(title_list)
+	container.appendChild(root_list)
 
-	return ul
+	return title_list
 }
 
-function fileStructureTreeCreate(root, array) {
-	let ul = document.createElement("ul")
-	let li
-	root.appendChild(ul)
-	array.forEach(function(item) {
-		if (Array.isArray(item)) {
-			fileStructureTreeCreate(li, item)
-		} else {
-			li = document.createElement("li")
-			li.appendChild(document.createTextNode(item))
-			ul.appendChild(li)	
-		}
-	})
- }
+function addTreeItem(container, key, value) {
+	let folder_list = document.createElement("ul")
+	let folder_list_header = document.createElement("li")
+
+	if (value != null) {
+		let text_span_key = document.createElement("span")
+		let text_span_value = document.createElement("span")
+
+		text_span_key.appendChild(document.createTextNode(key))
+		text_span_key.className = "blue"
+
+		text_span_value.appendChild(document.createTextNode(" = " + value))
+
+		folder_list_header.appendChild(text_span_key)
+		folder_list_header.appendChild(text_span_value)
+
+		container.appendChild(folder_list_header)
+		return folder_list_header
+	} else {
+		let text_span = document.createElement("span")
+
+		text_span.appendChild(document.createTextNode(key))
+		text_span.className = "good"
+		folder_list_header.appendChild(text_span)
+
+		folder_list_header.appendChild(folder_list)
+		container.appendChild(folder_list_header)
+		return folder_list
+	}	
+}

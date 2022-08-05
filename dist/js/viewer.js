@@ -79,10 +79,10 @@ function construct_scene(object_array, campos, camdist) {
 	}
 }
 
-function load_tmf(arrayBuffer) {
+function load_tmf(arrayBuffer, filename) {
 	var tmfFile = new TankengineTmf(new KaitaiStream(arrayBuffer));
 
-	fileInfoClear()
+	clearHTMLbyID("file-info")
 	fileInfoAddMessage("<span class='good'>File Type:</span> Tank Engine Model")
 	fileInfoAddMessage("")
 	fileInfoAddMessage("<span class='good'>Textures:</span> " + tmfFile.header.numTextures)
@@ -149,10 +149,10 @@ function load_tmf(arrayBuffer) {
 	construct_scene([tmfGroup], [32, 32, 32], [2, 64])
 }
 
-function load_pcs(arrayBuffer) {
+function load_pcs(arrayBuffer, filename) {
 	var pcsFile = new SlavedriverPcsPowerslave(new KaitaiStream(arrayBuffer));
 
-	fileInfoClear()
+	clearHTMLbyID("file-info")
 	fileInfoAddMessage("<span class='good'>File Type:</span> SlaveDriver Bitmap")
 	fileInfoAddMessage("")
 	fileInfoAddMessage("<span class='good'>Width:</span> " + pcsFile.bitmaps[0].width)
@@ -211,14 +211,21 @@ function load_pcs(arrayBuffer) {
 	//construct_gui_panel()
 }
 
-function load_pic(arrayBuffer) {
+function load_pic(arrayBuffer, filename) {
 	var picFile = new SlavedriverPicQuake(new KaitaiStream(arrayBuffer));
 
-	fileInfoClear()
+	clearHTMLbyID("file-info")
 	fileInfoAddMessage("<span class='good'>File Type:</span> SlaveDriver Bitmap")
 	fileInfoAddMessage("")
 	fileInfoAddMessage("<span class='good'>Width:</span> " + picFile.width)
 	fileInfoAddMessage("<span class='good'>Height:</span> " + picFile.height)
+
+	clearHTMLbyID("file-structure-tree")
+	let fs_root = startTree("file-structure-tree", filename)
+	let fs_palette = addTreeItem(fs_root, "palette", null)
+	let fs_width = addTreeItem(fs_root, "width", picFile.width)
+	let fs_height = addTreeItem(fs_root, "height", picFile.height)
+	let fs_bitmap = addTreeItem(fs_root, "bitmap", null)
 
 	const picPalette = picFile.palette
 	const picData = picFile.bitmap
@@ -272,7 +279,7 @@ function load_pic(arrayBuffer) {
 	construct_scene([spriteObject], [width + height, 0, 0], [128, 4096])
 }
 
-function load_pix(arrayBuffer) {
+function load_pix(arrayBuffer, filename) {
 	var pixFile = new BrenderPix(new KaitaiStream(arrayBuffer));
 
 	if (pixFile.bitmapType != 3) {
@@ -280,7 +287,7 @@ function load_pix(arrayBuffer) {
 		return
 	}
 
-	fileInfoClear()
+	clearHTMLbyID("file-info")
 	fileInfoAddMessage("<span class='good'>File Type:</span> BRender Pixelmap")
 	fileInfoAddMessage("")
 	fileInfoAddMessage("<span class='good'>Pixelmap Type:</span> " + pixFile.bitmapType)
@@ -288,6 +295,20 @@ function load_pix(arrayBuffer) {
 	fileInfoAddMessage("")
 	fileInfoAddMessage("<span class='good'>Width:</span> " + pixFile.header.width)
 	fileInfoAddMessage("<span class='good'>Height:</span> " + pixFile.header.height)
+
+	clearHTMLbyID("file-structure-tree")
+	let fs_root = startTree("file-structure-tree", filename)
+	let fs_magic = addTreeItem(fs_root, "magic", "0x0 0x0 0x0 0x12, 0x0 0x0 0x0 0x08, 0x0 0x0 0x0 0x02, 0x0 0x0 0x0 0x02")
+	let fs_bitmaptype = addTreeItem(fs_root, "bitmapType", pixFile.bitmapType)
+	let fs_header = addTreeItem(fs_root, "header", null)
+	let fs_header_01 = addTreeItem(fs_header, "lenHeader", pixFile.header.lenHeader)
+	let fs_header_02 = addTreeItem(fs_header, "bitmapType", pixFile.header.bitmapType)
+	let fs_header_03 = addTreeItem(fs_header, "rowBytes", pixFile.header.rowBytes)
+	let fs_header_04 = addTreeItem(fs_header, "width", pixFile.header.width)
+	let fs_header_05 = addTreeItem(fs_header, "height", pixFile.header.height)
+	let fs_header_06 = addTreeItem(fs_header, "originX", pixFile.header.originX)
+	let fs_header_07 = addTreeItem(fs_header, "originY", pixFile.header.originY)
+	let fs_header_08 = addTreeItem(fs_header, "identifier", pixFile.header.identifier)
 
 	const pixPalette = pixFile.bitmap.paletteData
 	const pixData = pixFile.bitmap.imageData
@@ -334,7 +355,7 @@ function load_pix(arrayBuffer) {
 	construct_scene([spriteObject], [width + height, 0, 0], [128, 4096])
 }
 
-function load_lev(arrayBuffer, game) {
+function load_lev(arrayBuffer, filename, game) {
 	if (game == "QUAKE") {
 		var levFile = new SlavedriverLevQuake(new KaitaiStream(arrayBuffer));
 	}
@@ -488,7 +509,10 @@ function load_lev(arrayBuffer, game) {
 		}
 	}
 
-	fileInfoClear()
+	// populate file info window
+
+	clearHTMLbyID("file-info")
+	fileInfoAddMessage("<span class='good'>File Name:</span> " + filename)
 	fileInfoAddMessage("<span class='good'>File Type:</span> SlaveDriver Level")
 	fileInfoAddMessage("")
 	fileInfoAddMessage("<span class='good'>Internal Level Name:</span> " + levFile.levelName)
@@ -505,6 +529,32 @@ function load_lev(arrayBuffer, game) {
 	fileInfoAddMessage("<span class='good'>Textures:</span> " + levMaterials.length)
 	fileInfoAddMessage("<span class='good'>Sounds:</span> " + levResources.numSounds)
 	fileInfoAddMessage("<span class='good'>Other Resources:</span> " + (levResources.numResources - levMaterials.length))
+
+
+	// populate file structure window
+	// todo: find a cleaner way to do this
+
+	clearHTMLbyID("file-structure-tree")
+	let fs_root = startTree("file-structure-tree", filename)
+	let fs_skyData = addTreeItem(fs_root, "skyData", null)
+	let fs_skyData_01 = addTreeItem(fs_skyData, "palette", null)
+	let fs_skyData_02 = addTreeItem(fs_skyData, "bitmaps", null)
+	let fs_header = addTreeItem(fs_root, "header", null)
+	let fs_header_01 = addTreeItem(fs_header, "unknown01", levHeader.unknown01)
+	let fs_header_02 = addTreeItem(fs_header, "unknown02", levHeader.unknown02)
+	let fs_header_03 = addTreeItem(fs_header, "numSectors", levHeader.numSectors)
+	let fs_header_04 = addTreeItem(fs_header, "numPlanes", levHeader.numPlanes)
+	let fs_header_05 = addTreeItem(fs_header, "numVertices", levHeader.numVertices)
+	let fs_header_06 = addTreeItem(fs_header, "numQuads", levHeader.numQuads)
+	let fs_header_07 = addTreeItem(fs_header, "lenTileTextureData", levHeader.lenTileTextureData)
+	let fs_header_08 = addTreeItem(fs_header, "numTiles", levHeader.numTiles)
+	let fs_header_09 = addTreeItem(fs_header, "lenTileColorData", levHeader.lenTileColorData)
+	let fs_header_10 = addTreeItem(fs_header, "numEntities", levHeader.numEntities)
+	let fs_header_11 = addTreeItem(fs_header, "lenEntityData", levHeader.lenEntityData)
+	let fs_header_12 = addTreeItem(fs_header, "numEntityPolylinks", levHeader.numEntityPolylinks)
+	let fs_header_13 = addTreeItem(fs_header, "numEntityPolylinkData1Segments", levHeader.numEntityPolylinkData1Segments)
+	let fs_header_14 = addTreeItem(fs_header, "numEntityPolylinkData2Segments", levHeader.numEntityPolylinkData2Segments)
+	let fs_header_15 = addTreeItem(fs_header, "numUnknown", levHeader.numUnknown)
 
 	// this loop is a bit of a mess so i'm going to explain it a bit
 	// first, parse through all sectors
