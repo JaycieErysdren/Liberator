@@ -8,6 +8,30 @@ const tauriReadBinaryFile = window.__TAURI__.fs.readBinaryFile
 const tauriInvoke = window.__TAURI__.invoke
 
 //
+// defs
+//
+
+const formats_3dmm = [
+	"chk", "3th", "3cn", "3mm",
+	"CHK", "3TH", "3CN", "3MM"
+]
+
+const formats_slavedriver = [
+	"lev", "pic", "pcs",
+	"LEV", "PIC", "PCS"
+]
+
+const formats_brender = [
+	"pix",
+	"PIX"
+]
+
+const formats_tankengine = [
+	"tmf",
+	"TMF"
+]
+
+//
 // window init
 //
 
@@ -62,9 +86,9 @@ function parseFile(filepath, arrayBuffer) {
 	} else if (ext == "TMF" || ext == "tmf") {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> Tank Engine Model")
 		import("/js/viewer.js").then((module) => { module.load_tmf(arrayBuffer, filename) })
-	} else if (ext == "CHK" || ext == "chk") {
+	} else if (formats_3dmm.includes(ext)) {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> Microsft 3D Movie Maker Chunk")
-		import("/js/viewer.js").then((module) => { module.load_ms3dmm_chunk(arrayBuffer, filename) })
+		import("/js/viewer.js").then((module) => { module.load_ms3dmm(arrayBuffer, filename) })
 	} else {
 		consoleAddMessage("<span class='error'>Error:</span> Couldn't determine file type.")
 	}
@@ -82,10 +106,28 @@ function openFile() {
 	}
 	tauriOpenFile({
 		multiple: false,
-		filters: [{
-			name: "Supported Formats",
-			extensions: ["lev", "pic", "pix", "pcs", "tmf", "chk", "LEV", "PIC", "PIX", "PCS", "TMF", "CHK"]
-		}]
+		filters: [
+			{
+				name: "Supported Formats",
+				extensions: formats_3dmm.concat(formats_slavedriver, formats_brender, formats_tankengine)
+			},
+			{
+				name: "Microsoft 3D Movie Maker",
+				extensions: formats_3dmm
+			},
+			{
+				name: "SlaveDriver Engine",
+				extensions: formats_slavedriver
+			},
+			{
+				name: "BRender Engine",
+				extensions: formats_brender
+			},
+			{
+				name: "Tank Engine",
+				extensions: formats_tankengine
+			}
+		]
 	}).then((filename) => selectFile(filename))
 }
 

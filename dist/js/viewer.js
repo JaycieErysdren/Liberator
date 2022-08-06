@@ -8,7 +8,7 @@ export {
 	load_pic, // SlaveDriver Engine bitmap (quake)
 	load_pcs, // SlaveDriver Engine bitmap (powerslave)
 	load_tmf, // Tank Engine model
-	load_ms3dmm_chunk, // Microsoft 3D Movie Maker Chunk
+	load_ms3dmm, // Microsoft 3D Movie Maker Chunk
 }
 
 function construct_gui_panel() {
@@ -80,7 +80,7 @@ function construct_scene(object_array, campos, camdist) {
 	}
 }
 
-function load_ms3dmm_chunk(arrayBuffer, filename) {
+function load_ms3dmm(arrayBuffer, filename) {
 	var chunkFile = new Ms3dmmChunk(new KaitaiStream(arrayBuffer));
 
 	// parse chunk indexes
