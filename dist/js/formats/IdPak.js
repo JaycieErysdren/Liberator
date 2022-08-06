@@ -55,19 +55,28 @@ var IdPak = (function() {
       this._read();
     }
     FileTableT.prototype._read = function() {
-      this.filepath = KaitaiStream.bytesToStr(this._io.readBytes(56), "ASCII");
-      this.ofsFileData = this._io.readU4le();
-      this.lenFileData = this._io.readU4le();
+      this.filepath = KaitaiStream.bytesToStr(this._io.readBytesTerm(0, false, true, true), "ASCII");
     }
-    Object.defineProperty(FileTableT.prototype, 'getFileData', {
+    Object.defineProperty(FileTableT.prototype, 'ofsFileData', {
       get: function() {
-        if (this._m_getFileData !== undefined)
-          return this._m_getFileData;
+        if (this._m_ofsFileData !== undefined)
+          return this._m_ofsFileData;
         var _pos = this._io.pos;
-        this._io.seek(this.ofsFileData);
-        this._m_getFileData = this._io.readBytes(this.lenFileData);
+        this._io.seek(56);
+        this._m_ofsFileData = this._io.readU4le();
         this._io.seek(_pos);
-        return this._m_getFileData;
+        return this._m_ofsFileData;
+      }
+    });
+    Object.defineProperty(FileTableT.prototype, 'lenFileData', {
+      get: function() {
+        if (this._m_lenFileData !== undefined)
+          return this._m_lenFileData;
+        var _pos = this._io.pos;
+        this._io.seek(60);
+        this._m_lenFileData = this._io.readU4le();
+        this._io.seek(_pos);
+        return this._m_lenFileData;
       }
     });
 
@@ -79,9 +88,12 @@ var IdPak = (function() {
         return this._m_getFileTable;
       var _pos = this._io.pos;
       this._io.seek(this.header.ofsFileTable);
+      this._raw__m_getFileTable = [];
       this._m_getFileTable = [];
       for (var i = 0; i < Math.floor(this.header.lenFileTable / 64); i++) {
-        this._m_getFileTable.push(new FileTableT(this._io, this, this._root));
+        this._raw__m_getFileTable.push(this._io.readBytes(64));
+        var _io__raw__m_getFileTable = new KaitaiStream(this._raw__m_getFileTable[i]);
+        this._m_getFileTable.push(new FileTableT(_io__raw__m_getFileTable, this, this._root));
       }
       this._io.seek(_pos);
       return this._m_getFileTable;

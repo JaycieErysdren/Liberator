@@ -28,16 +28,6 @@ function construct_gui_panel() {
 }
 
 function construct_jstree(json) {
-
-	let example_json = { "core": { "data": [
-		{ "id": "ajson1", "parent": "#", "text": "Root node 1", "state": { opened: true }, "icon": "/images/silk/folder.png" },
-		{ "id": "ajson2", "parent": "ajson1", "text": "Child 1", "icon": "/images/silk/information.png" },
-		{ "id": "ajson3", "parent": "ajson1", "text": "Child 2", "icon": "/images/silk/information.png" },
-		{ "id": "ajson4", "parent": "#", "text": "Root node 2", "state": { opened: true }, "icon": "/images/silk/folder.png"  },
-		{ "id": "ajson5", "parent": "ajson4", "text": "Child 1", "icon": "/images/silk/information.png" },
-		{ "id": "ajson6", "parent": "ajson4", "text": "Child 2", "icon": "/images/silk/information.png" }
-	] } }
-
 	console.log(json)
 
 	$.jstree.defaults.core.themes.variant = "large";
@@ -159,6 +149,7 @@ function load_pak(arrayBuffer, filename) {
 			let itemCurrent = itemParent + itemSplit[x] + "/"
 			let parent = itemParent
 			if (!parentArray.includes(itemCurrent)) {
+
 				if (parent == undefined || parent == "") {
 					parent = "file"
 				}
@@ -169,9 +160,12 @@ function load_pak(arrayBuffer, filename) {
 				jsonData.push(arrayItem)
 			}
 
-			itemParent += itemCurrent
-
+			itemParent = itemCurrent
 			console.log(itemParent)
+		}
+
+		if (itemParent == undefined || itemParent == "") {
+			itemParent = "file"
 		}
 
 		item = constructJsTreeEntry(pakFilePath, itemParent, itemName, "/images/silk/page.png", true)
