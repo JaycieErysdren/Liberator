@@ -9,6 +9,8 @@ export {
 	load_pcs, // SlaveDriver Engine bitmap (powerslave)
 	load_tmf, // Tank Engine model
 	load_ms3dmm, // Microsoft 3D Movie Maker Chunk
+	load_zip, // zip
+	load_pak, // idTech pakfile
 }
 
 function construct_gui_panel() {
@@ -23,6 +25,23 @@ function construct_gui_panel() {
 	}
 
 	folder1.add(settings, "show asset")
+}
+
+function construct_jstree(json) {
+
+	let example_json = { "core": { "data": [
+		{ "id": "ajson1", "parent": "#", "text": "Root node 1", "state": { opened: true }, "icon": "/images/silk/folder.png" },
+		{ "id": "ajson2", "parent": "ajson1", "text": "Child 1", "icon": "/images/silk/information.png" },
+		{ "id": "ajson3", "parent": "ajson1", "text": "Child 2", "icon": "/images/silk/information.png" },
+		{ "id": "ajson4", "parent": "#", "text": "Root node 2", "state": { opened: true }, "icon": "/images/silk/folder.png"  },
+		{ "id": "ajson5", "parent": "ajson4", "text": "Child 1", "icon": "/images/silk/information.png" },
+		{ "id": "ajson6", "parent": "ajson4", "text": "Child 2", "icon": "/images/silk/information.png" }
+	] } }
+
+	console.log(json)
+
+	$.jstree.defaults.core.themes.variant = "large";
+	$("#file-structure-tree").jstree(json)
 }
 
 function construct_scene(object_array, campos, camdist) {
@@ -78,6 +97,139 @@ function construct_scene(object_array, campos, camdist) {
 	function render() {
 		renderer.render(scene, camera)
 	}
+}
+
+function isDirectory(string) {
+	if (string.split('\\').pop().split('/').pop() == "") {
+		return true
+	} else {
+		return false
+	}
+}
+
+function constructJsTreeRoot(rootName, rootImage) {
+	let root = constructJsTreeEntry("file", "#", rootName, rootImage, true)
+
+	let json = { "core": { "data": [root] } }
+
+	return json
+}
+
+function constructJsTreeEntry(id, parent, text, icon, startOpened) {
+	let json, openedVal
+
+	if (startOpened) {
+		openedVal = true
+	} else {
+		openedVal = false
+	}
+
+	json = { "id": id, "parent": parent, "text": text, "icon": icon, "state": { opened: openedVal } }
+
+	return json
+}
+
+function load_pak(arrayBuffer, filename) {
+	let pakFile = new IdPak(new KaitaiStream(arrayBuffer))
+
+	let pakFileTable = pakFile.getFileTable
+
+	let json = constructJsTreeRoot(filename, "/images/silk/package.png")
+	let jsonData = json["core"]["data"]
+
+	let parentArray = []
+
+	// this is all probably horribly inefficient
+
+	for (let i = 0; i < pakFileTable.length; i++) {
+		let pakFileItem = pakFileTable[i]
+
+		let item, itemName, itemExt, itemParent, itemSplit
+
+		itemParent = ""
+
+		let pakFilePath = pakFileItem.filepath
+
+		itemName = pakFilePath.split('\\').pop().split('/').pop()
+		itemExt = itemName.split(".").pop()
+		itemSplit = pakFilePath.split('\\').pop().split('/')
+
+		// loop through the parent directories to make sure they all exist as nodes
+		for (let x = 0; x < itemSplit.length - 1; x++) {
+			let itemCurrent = itemParent + itemSplit[x] + "/"
+			let parent = itemParent
+			if (!parentArray.includes(itemCurrent)) {
+				if (parent == undefined || parent == "") {
+					parent = "file"
+				}
+
+				let arrayItem = constructJsTreeEntry(itemCurrent, parent, itemSplit[x], "/images/silk/folder.png", true)
+
+				parentArray.push(itemCurrent)
+				jsonData.push(arrayItem)
+			}
+
+			itemParent += itemCurrent
+
+			console.log(itemParent)
+		}
+
+		item = constructJsTreeEntry(pakFilePath, itemParent, itemName, "/images/silk/page.png", true)
+		jsonData.push(item)
+	}
+
+	console.log(jsonData)
+
+	json["core"]["data"] = jsonData
+
+	construct_jstree(json)
+}
+
+function load_zip(arrayBuffer, filename) {
+	let zipFile = new Zip(new KaitaiStream(arrayBuffer))
+
+	let json = constructJsTreeRoot(filename, "/images/silk/package.png")
+	let jsonData = json["core"]["data"]
+
+	for (let i = 0; i < zipFile.sections.length; i++) {
+		let zipSection = zipFile.sections[i]
+		if (zipSection.sectionType == 1027) {
+
+			let zipData = zipSection.body.body
+			let zipHeader = zipSection.body.header
+
+			let zipFileName = zipHeader.fileName
+
+			let itemImage, itemName, itemExt, itemParent, itemSplit
+
+			if (isDirectory(zipFileName)) {
+				itemImage = "/images/silk/folder.png"
+				itemSplit = zipFileName.split('\\').pop().split('/')
+				itemName = itemSplit[itemSplit.length - 2]
+				if (itemSplit[0] == itemName) {
+					itemParent = "file"
+				} else {
+					itemParent = zipFileName.substring(0, zipFileName.length - itemName.length - 1)
+				}
+
+				console.log(itemSplit, itemName, itemParent)
+			} else {
+				itemImage = "/images/silk/page.png"
+				itemName = zipFileName.split('\\').pop().split('/').pop()
+				itemExt = itemName.split(".").pop()
+				itemParent = zipFileName.substring(0, zipFileName.length - itemName.length)
+			}
+
+			let item = constructJsTreeEntry(zipFileName, itemParent, itemName, itemImage, true)
+			jsonData.push(item)
+		}
+	}
+
+	console.log(jsonData)
+
+	json["core"]["data"] = jsonData
+
+	construct_jstree(json)
 }
 
 function load_ms3dmm(arrayBuffer, filename) {

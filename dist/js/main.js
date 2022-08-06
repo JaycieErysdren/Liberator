@@ -31,6 +31,16 @@ const formats_tankengine = [
 	"TMF"
 ]
 
+const formats_common = [
+	"zip",
+	"ZIP"
+]
+
+const formats_idtech = [
+	"pak",
+	"PAK"
+]
+
 //
 // window init
 //
@@ -89,6 +99,12 @@ function parseFile(filepath, arrayBuffer) {
 	} else if (formats_3dmm.includes(ext)) {
 		consoleAddMessage("<span class='good'>Assuming File Type:</span> Microsft 3D Movie Maker Chunk")
 		import("/js/viewer.js").then((module) => { module.load_ms3dmm(arrayBuffer, filename) })
+	} else if (ext == "ZIP" || ext == "zip") {
+		consoleAddMessage("<span class='good'>Assuming File Type:</span> ZIP")
+		import("/js/viewer.js").then((module) => { module.load_zip(arrayBuffer, filename) })
+	} else if (ext == "PAK" || ext == "pak") {
+		consoleAddMessage("<span class='good'>Assuming File Type:</span> idTech Pakfile")
+		import("/js/viewer.js").then((module) => { module.load_pak(arrayBuffer, filename) })
 	} else {
 		consoleAddMessage("<span class='error'>Error:</span> Couldn't determine file type.")
 	}
@@ -109,7 +125,7 @@ function openFile() {
 		filters: [
 			{
 				name: "Supported Formats",
-				extensions: formats_3dmm.concat(formats_slavedriver, formats_brender, formats_tankengine)
+				extensions: formats_3dmm.concat(formats_slavedriver, formats_brender, formats_tankengine, formats_common, formats_idtech)
 			},
 			{
 				name: "Microsoft 3D Movie Maker",
@@ -126,6 +142,14 @@ function openFile() {
 			{
 				name: "Tank Engine",
 				extensions: formats_tankengine
+			},
+			{
+				name: "idTech Engines",
+				extensions: formats_idtech
+			},
+			{
+				name: "Common Formats",
+				extensions: formats_common
 			}
 		]
 	}).then((filename) => selectFile(filename))
