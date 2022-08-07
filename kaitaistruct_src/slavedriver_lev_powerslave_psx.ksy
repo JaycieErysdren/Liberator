@@ -11,49 +11,77 @@ seq:
   - id: header
     type: header_t
   - id: texture_data
-    type: zedpad_t((header.size_texture_data2 << 16) | header.size_texture_data1)
+    size: texdata_padded
   - id: audio_data
-    type: zedpad_t(header.size_audio_data)
-  - id: hulls
-    type: hull_t
+    size: auddata_padded
+  - id: sectors
+    type: sector_t
     repeat: expr
-    repeat-expr: header.num_hulls
+    repeat-expr: header.num_sectors
+  - id: planes
+    type: plane_t
+    repeat: expr
+    repeat-expr: header.num_planes
+  - id: quads
+    type: quad_t
+    repeat: expr
+    repeat-expr: header.num_quads
+  - id: vertices
+    type: vertex_t
+    repeat: expr
+    repeat-expr: header.num_vertices
+  - id: uv_maps
+    type: uv_map_t
+    repeat: expr
+    repeat-expr: header.num_uv_maps
+  - id: entities
+    type: entity_t
+    repeat: expr
+    repeat-expr: header.num_entities
+  - id: events
+    type: event_t
+    repeat: expr
+    repeat-expr: header.num_events
+
+instances:
+  texdata_padded:
+    value: (texdata_size + ((0x800 - (texdata_size & 0x7FF)) & 0x7FF))
+
+  auddata_padded:
+    value: (auddata_size + ((0x800 - (auddata_size & 0x7FF)) & 0x7FF))
+
+  auddata_size:
+    value: header.len_audio_data
+
+  texdata_size:
+    value: header.len_texture_data2 << 16 | header.len_texture_data1
 
 types:
-
-  zedpad_t:
-    params:
-      - id: x
-        type: u2
-    seq:
-      - id: data
-        size: x + ((0x800 - (x & 0x7FF)) & 0x7FF)
-
   header_t:
     seq:
       - id: unknown01
         type: u2
-      - id: size_texture_data1
+      - id: len_texture_data1
         type: u2
-      - id: size_texture_data2
+      - id: len_texture_data2
         type: u2
       - id: num_audio
         type: u2
-      - id: size_audio_data
+      - id: len_audio_data
         type: s4
-      - id: size_level_data
+      - id: len_level_data
         type: s4
       - id: unknown02
         type: u2
-      - id: num_hulls
+      - id: num_sectors
         type: u2
-      - id: num_faces
+      - id: num_planes
         type: u2
-      - id: num_polys
+      - id: num_quads
         type: u2
       - id: num_vertices
         type: u2
-      - id: num_uvs
+      - id: num_uv_maps
         type: u2
       - id: num_entities
         type: u2
@@ -75,12 +103,14 @@ types:
         type: s2
         repeat: expr
         repeat-expr: 10
-      - id: glob
-        type: b4
+      - id: mipmap_translation
+        type: s2
         repeat: expr
-        repeat-expr: 32312 # 0x7E38
+        repeat-expr: 16
+      - id: glob
+        size: 0x7E38
 
-  hull_t:
+  sector_t:
     seq:
       - id: plane_indexes
         type: u2
@@ -110,3 +140,110 @@ types:
         type: s2
         repeat: expr
         repeat-expr: 26
+
+  plane_t:
+    seq:
+      - id: vertex_indices
+        type: s2
+        repeat: expr
+        repeat-expr: 2
+      - id: vertex_start_index
+        type: u2
+      - id: sector_index
+        type: s2
+      - id: angle
+        type: s2
+      - id: normal
+        type: s2
+        repeat: expr
+        repeat-expr: 3
+      - id: flags
+        type: s2
+      - id: un1
+        type: s2
+      - id: quad_start_index
+        type: u2
+      - id: quad_end_index
+        type: u2
+      - id: reserved
+        type: s2
+        repeat: expr
+        repeat-expr: 6
+
+  quad_t:
+    seq:
+      - id: vertex_indices
+        type: u1
+        repeat: expr
+        repeat-expr: 4
+      - id: texture_index
+        type: s2
+      - id: uv_index
+        type: u2
+      - id: flipped
+        type: s2
+      - id: reserved
+        type: s2
+
+  vertex_t:
+    seq:
+      - id: coords
+        type: s2
+        repeat: expr
+        repeat-expr: 3
+      - id: light_value
+        type: u2
+
+  uv_map_t:
+    seq:
+      - id: top_left
+        type: u1
+        repeat: expr
+        repeat-expr: 2
+      - id: top_right
+        type: u1
+        repeat: expr
+        repeat-expr: 2
+      - id: bottom_right
+        type: u1
+        repeat: expr
+        repeat-expr: 2
+      - id: bottom_left
+        type: u1
+        repeat: expr
+        repeat-expr: 2
+
+  entity_t:
+    seq:
+      - id: un1
+        type: s2
+      - id: x
+        type: s2
+      - id: params
+        type: s2
+      - id: y
+        type: s2
+      - id: tag
+        type: s2
+      - id: z
+        type: s2
+      - id: sector_index
+        type: s2
+      - id: type
+        type: s2
+      - id: un2
+        type: s2
+      - id: un3
+        type: s2
+
+  event_t:
+    seq:
+      - id: type
+        type: s2
+      - id: sector_index
+        type: s2
+      - id: tag
+        type: s2
+      - id: un1
+        type: s2
+
