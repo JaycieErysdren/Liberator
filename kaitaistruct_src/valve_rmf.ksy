@@ -251,8 +251,20 @@ types:
         type: strz
         size: 256
         encoding: ascii
+      - id: rotation
+        type: f4
+      - id: un1
+        type: f4
+      - id: shift
+        type: f4
+        repeat: expr
+        repeat-expr: 2
+      - id: scale
+        type: f4
+        repeat: expr
+        repeat-expr: 2
       - id: unknown
-        size: 40
+        size: 16
 
   c_map_texture_33_t:
     seq:
@@ -260,8 +272,28 @@ types:
         type: strz
         size: 256
         encoding: ascii
-      - id: unknown
-        size: 64
+      - id: un1
+        type: f4
+      - id: u
+        type: f4
+        repeat: expr
+        repeat-expr: 3
+      - id: shift_x
+        type: f4
+      - id: v
+        type: f4
+        repeat: expr
+        repeat-expr: 3
+      - id: shift_y
+        type: f4
+      - id: rotation
+        type: f4
+      - id: scale
+        type: f4
+        repeat: expr
+        repeat-expr: 2
+      - id: un2
+        size: 16
 
   c_map_group_t:
     seq:
