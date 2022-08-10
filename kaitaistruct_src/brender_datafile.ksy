@@ -10,7 +10,7 @@ seq:
   - id: chunks
     type: br_datafile_chunk_t
     repeat: expr
-    repeat-expr: 7
+    repeat-expr: 9
 
 types:
   br_datafile_chunk_t:
@@ -32,7 +32,7 @@ types:
             24: br_uv_index_t # vertex uvs
             26: br_face_material_index_t # face material assignments
             #33: br_pixels_t # raw pixels
-            35: br_actor_t
+            35: br_actor_t # actor def
             53: br_face_index_t # faces
             54: br_model_t # model def
             _: br_unknown_t
@@ -69,9 +69,8 @@ types:
       - id: origin_y
         type: u2
       - id: identifier
-        type: str
+        type: strz
         encoding: ascii
-        size: _parent.len_data - 10
 
   br_model_t:
     seq:
