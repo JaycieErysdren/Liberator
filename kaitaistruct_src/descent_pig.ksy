@@ -38,9 +38,27 @@ types:
       - id: ofs_data
         type: u4
     instances:
-      get:
-        pos: ofs_data + (17 * _root.num_bitmaps) + (20 * _root.num_sounds) + 8
-        size: (width * height) * 2
+      data_pos:
+        value: ofs_data + (17 * _root.num_bitmaps) + (20 * _root.num_sounds) + 8
+      get_linear_data:
+        pos: data_pos
+        size: width * height
+      get_rle_data:
+        pos: data_pos
+        type: rle_bitmap_t
+
+  rle_bitmap_t:
+    seq:
+      - id: next_ofs
+        type: u4
+      - id: run_lengths
+        type: u1
+        repeat: expr
+        repeat-expr: _parent.height
+      - id: pixels
+        type: u1
+        repeat: expr
+        repeat-expr: next_ofs - _parent.height - 4
 
   sound_header_t:
     seq:
@@ -55,6 +73,6 @@ types:
       - id: ofs_data
         type: u4
     instances:
-      get:
+      data:
         pos: ofs_data
         size: len_data

@@ -119,6 +119,7 @@ types:
         type: pof_model_animation_t
         repeat: expr
         repeat-expr: _root.chunks[1].data.as<pof_object_header_t>.num_models
+        # ^ this probably isn't reliable in every case
 
   pof_model_animation_t:
     seq:
