@@ -6,3 +6,5 @@
 
 # example files
 /test_files/
+
+**/__pycache/
