@@ -7,10 +7,13 @@
 		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
 		<link rel="stylesheet" href="css/style.css">
 		<!-- jstree -->
+		<!--
 		<link rel="stylesheet" href="css/jstree/style.css">
 		<script type="application/javascript" src="js/jquery-3.6.0.min.js"></script>
 		<script type="application/javascript" src="js/jstree.js"></script>
+		-->
 		<!-- kaitaistruct -->
+		<!--
 		<script type="application/javascript" src="js/KaitaiStream.js"></script>
 		<script type="application/javascript" src="js/formats/SlavedriverLevQuake.js"></script>
 		<script type="application/javascript" src="js/formats/SlavedriverPicQuake.js"></script>
@@ -21,22 +24,32 @@
 		<script type="application/javascript" src="js/formats/IdPak.js"></script>
 		<script type="application/javascript" src="js/formats/DosDatetime.js"></script>
 		<script type="application/javascript" src="js/formats/Zip.js"></script>
+		-->
 	</head>
 	<body>
 		<div id="messages-root" style="display: none">
 			<div class="liberator-message-container">
-				<div id="message-lev-whatgame" class="liberator-message">
+				<div id="liberator-message-close-button">&times;</div>
+				<div id="message-lev-whatgame" class="liberator-message" style="display: none">
 					What game is this .LEV file from?
+				</div>
+				<div id="message-about" class="liberator-message" style="display: none">
+					<h2>About</h2>
+					<h3>Versions</h3>
+					<p>Liberator: 0.1.1-alpha</p>
+					<p>Node.js: <span id="node-version"></span></p>
+					<p>Chromium: <span id="chrome-version"></span></p>
+					<p>Electron: <span id="electron-version"></span></p>
 				</div>
 			</div>
 		</div>
 		<div id="root">
 			<div id="menu-bar">
-				<img src="images/silk/folder_go.png" title="Open..." data-func="open" class="menu-bar-item"></img>
-				<img src="images/silk/page_add.png" title="Save As..." data-func="save" class="menu-bar-item"></img>
+				<img src="images/silk/folder_go.png" title="Open..." data-func="open" id="menu-bar-open-file" class="menu-bar-item"></img>
+				<!--<img src="images/silk/page_add.png" title="Save As..." data-func="save" class="menu-bar-item"></img>-->
 				<!--<img src="images/silk/wrench.png" title="Preferences" data-func="preferences" class="menu-bar-item"></img>-->
-				<img src="images/silk/information.png" title="About" data-func="about" class="menu-bar-item"></img>
-				<img src="images/silk/door_out.png" title="Quit" data-func="quit" class="menu-bar-item"></img>
+				<img src="images/silk/information.png" title="About" data-func="about" id="menu-bar-about" class="menu-bar-item"></img>
+				<img src="images/silk/door_out.png" title="Quit" data-func="quit" id="menu-bar-quit" class="menu-bar-item"></img>
 			</div>
 			<div id="file-structure-tree" class="liberator-frame"></div>
 			<div id="actions" class="liberator-frame"></div>
@@ -44,6 +57,6 @@
 			<div id="viewer" style="background-color: #909090" class="liberator-frame"></div>
 			<div id="console-container" class="liberator-frame"><div id="console"></div></div>
 		</div>
-		<script type="application/javascript" src="js/main.js"></script>
+		<script type="application/javascript" src="js/renderer.js"></script>
 	</body>
 </html>

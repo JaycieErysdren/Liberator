@@ -26,6 +26,7 @@ html {
 	
 	text-align: left;
 	font-size: 2vh;
+	font-family: monospace;
 	color: #ffffff;
 }
 
@@ -154,19 +155,36 @@ html {
 }
 
 .liberator-message-container {
-	width: 20vw;
-	height: 40vh;
+	width: 30vw;
+	height: 50vh;
 	background-color: #171717;
 	border: 1px solid #515151;
-	top: 30vh;
-	left: 40vw;
+	top: 25vh;
+	left: 35vw;
 	position: absolute;
+}
+
+#liberator-message-close-button {
+	position: absolute;
+	left: calc(100% - 4vh);
+	width: 4vh;
+	height: 4vh;
+	font-size: 4vh;
+	cursor: pointer;
 }
 
 .liberator-message {
 	width: 100%;
 	height: 100%;
-	margin: 16pt;
+	margin: 8pt;
+}
+
+.liberator-message p {
+	padding: 1vh 0 1vh 0;
+}
+
+.liberator-message h2 {
+	padding-bottom: 2vh;
 }
 
 .menu-bar-item {
