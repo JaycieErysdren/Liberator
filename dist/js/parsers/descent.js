@@ -43,14 +43,28 @@ module.exports = {
 		let hogFile = new DescentHog(new KaitaiStream(data))
 
 		let jsonData = []
-		jsonData.push({ "id" : "file", "parent" : "#", "text" : fileName, "icon": "./images/silk/package.png", "state": { "opened": true } })
+		jsonData.push(fileTree.item("file", "#", fileName, "./images/silk/package.png", true))
 
 		for (let i = 0; i < hogFile.chunks.length; i++) {
 			let chunk = hogFile.chunks[i]
 			let chunkText = "[" + i.toString() + "] " + chunk.name
-			jsonData.push({ "id" : chunk.name, "parent" : "file", "text" : chunkText, "icon": "./images/silk/page.png", "state": { "opened": true } })
-		}
+			let chunkExt = chunk.name.split(".").pop().toLowerCase()
+			let chunkImage
 
+			if (chunkExt == "pcx" || chunkExt == "bbm") {
+				chunkImage = "./images/silk/picture.png"
+			} else if (chunkExt == "256") {
+				chunkImage = "./images/silk/color_swatch.png"
+			} else if (chunkExt == "rdl") {
+				chunkImage = "./images/silk/world.png"
+			} else if (chunkExt == "pof") {
+				chunkImage = "./images/silk/shape_group.png"
+			} else {
+				chunkImage = "./images/silk/page.png"
+			}
+
+			jsonData.push(fileTree.item(chunk.name, "file", chunkText, chunkImage, true))
+		}
 
 		let fileInfo = [
 			["File Name: ", fileName],
