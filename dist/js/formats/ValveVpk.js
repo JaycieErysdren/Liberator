@@ -6,34 +6,68 @@
   } else if (typeof module === 'object' && module.exports) {
     module.exports = factory(require('kaitai-struct/KaitaiStream'));
   } else {
-    root.ValveVpk2 = factory(root.KaitaiStream);
+    root.ValveVpk = factory(root.KaitaiStream);
   }
 }(typeof self !== 'undefined' ? self : this, function (KaitaiStream) {
 /**
- * Valve Software VPK2
+ * Valve Software VPK (versions 1 and 2)
  * @see {@link https://developer.valvesoftware.com/wiki/VPK_File_Format|Source}
  */
 
-var ValveVpk2 = (function() {
-  function ValveVpk2(_io, _parent, _root) {
+var ValveVpk = (function() {
+  function ValveVpk(_io, _parent, _root) {
     this._io = _io;
     this._parent = _parent;
     this._root = _root || this;
 
     this._read();
   }
-  ValveVpk2.prototype._read = function() {
+  ValveVpk.prototype._read = function() {
     this.header = new HeaderT(this._io, this, this._root);
     this._raw_files = this._io.readBytes(this.header.lenDirectoryTree);
     var _io__raw_files = new KaitaiStream(this._raw_files);
     this.files = new FilesT(_io__raw_files, this, this._root);
-    this.fileData = this._io.readBytes(this.header.vpk2Header.lenFileData);
+    switch (this.header.version) {
+    case 1:
+      this.fileData = new Vpk1FileData(this._io, this, this._root);
+      break;
+    case 2:
+      this.fileData = new Vpk2FileData(this._io, this, this._root);
+      break;
+    default:
+      this.fileData = new UnknownData(this._io, this, this._root);
+      break;
+    }
     if (this.header.version > 1) {
       this.footer = new FooterT(this._io, this, this._root);
     }
   }
 
-  var FooterT = ValveVpk2.FooterT = (function() {
+  var FileT = ValveVpk.FileT = (function() {
+    function FileT(_io, _parent, _root) {
+      this._io = _io;
+      this._parent = _parent;
+      this._root = _root || this;
+
+      this._read();
+    }
+    FileT.prototype._read = function() {
+      this.crc = this._io.readU4le();
+      this.lenPreloadData = this._io.readU2le();
+      this.archiveIndex = this._io.readU2le();
+      this.ofsEntryData = this._io.readU4le();
+      this.lenEntryData = this._io.readU4le();
+      this.terminator = this._io.readBytes(2);
+      if (!((KaitaiStream.byteArrayCompare(this.terminator, [255, 255]) == 0))) {
+        throw new KaitaiStream.ValidationNotEqualError([255, 255], this.terminator, this._io, "/types/file_t/seq/5");
+      }
+      this.preloadData = this._io.readBytes(this.lenPreloadData);
+    }
+
+    return FileT;
+  })();
+
+  var FooterT = ValveVpk.FooterT = (function() {
     function FooterT(_io, _parent, _root) {
       this._io = _io;
       this._parent = _parent;
@@ -50,7 +84,37 @@ var ValveVpk2 = (function() {
     return FooterT;
   })();
 
-  var TreeFilesT = ValveVpk2.TreeFilesT = (function() {
+  var Vpk2FileData = ValveVpk.Vpk2FileData = (function() {
+    function Vpk2FileData(_io, _parent, _root) {
+      this._io = _io;
+      this._parent = _parent;
+      this._root = _root || this;
+
+      this._read();
+    }
+    Vpk2FileData.prototype._read = function() {
+      this.data = this._io.readBytes(this._root.header.vpk2Header.lenFileData);
+    }
+
+    return Vpk2FileData;
+  })();
+
+  var Vpk1FileData = ValveVpk.Vpk1FileData = (function() {
+    function Vpk1FileData(_io, _parent, _root) {
+      this._io = _io;
+      this._parent = _parent;
+      this._root = _root || this;
+
+      this._read();
+    }
+    Vpk1FileData.prototype._read = function() {
+      this.data = this._io.readBytesFull();
+    }
+
+    return Vpk1FileData;
+  })();
+
+  var TreeFilesT = ValveVpk.TreeFilesT = (function() {
     function TreeFilesT(_io, _parent, _root) {
       this._io = _io;
       this._parent = _parent;
@@ -59,23 +123,16 @@ var ValveVpk2 = (function() {
       this._read();
     }
     TreeFilesT.prototype._read = function() {
-      this.filename = KaitaiStream.bytesToStr(this._io.readBytesTerm(0, false, true, true), "ASCII");
-      this.crc = this._io.readU4le();
-      this.lenPreloadData = this._io.readU2le();
-      this.archiveIndex = this._io.readU2le();
-      this.ofsEntryData = this._io.readU4le();
-      this.lenEntryData = this._io.readU4le();
-      this.terminator = this._io.readBytes(2);
-      if (!((KaitaiStream.byteArrayCompare(this.terminator, [255, 255]) == 0))) {
-        throw new KaitaiStream.ValidationNotEqualError([255, 255], this.terminator, this._io, "/types/tree_files_t/seq/6");
+      this.fileName = KaitaiStream.bytesToStr(this._io.readBytesTerm(0, false, true, true), "ASCII");
+      if (this.fileName != "") {
+        this.fileData = new FileT(this._io, this, this._root);
       }
-      this.preloadData = this._io.readBytes(this.lenPreloadData);
     }
 
     return TreeFilesT;
   })();
 
-  var HeaderT = ValveVpk2.HeaderT = (function() {
+  var HeaderT = ValveVpk.HeaderT = (function() {
     function HeaderT(_io, _parent, _root) {
       this._io = _io;
       this._parent = _parent;
@@ -98,7 +155,7 @@ var ValveVpk2 = (function() {
     return HeaderT;
   })();
 
-  var FilesT = ValveVpk2.FilesT = (function() {
+  var FilesT = ValveVpk.FilesT = (function() {
     function FilesT(_io, _parent, _root) {
       this._io = _io;
       this._parent = _parent;
@@ -118,7 +175,7 @@ var ValveVpk2 = (function() {
     return FilesT;
   })();
 
-  var TreeExtensionsT = ValveVpk2.TreeExtensionsT = (function() {
+  var TreeExtensionsT = ValveVpk.TreeExtensionsT = (function() {
     function TreeExtensionsT(_io, _parent, _root) {
       this._io = _io;
       this._parent = _parent;
@@ -127,22 +184,22 @@ var ValveVpk2 = (function() {
       this._read();
     }
     TreeExtensionsT.prototype._read = function() {
-      this.extension = KaitaiStream.bytesToStr(this._io.readBytesTerm(0, false, true, true), "ASCII");
-      this._raw_treeDirectories = [];
-      this.treeDirectories = [];
-      var i = 0;
-      while (!this._io.isEof()) {
-        this._raw_treeDirectories.push(this._io.readBytesTerm(0, false, true, true));
-        var _io__raw_treeDirectories = new KaitaiStream(this._raw_treeDirectories[this._raw_treeDirectories.length - 1]);
-        this.treeDirectories.push(new TreeDirectoriesT(_io__raw_treeDirectories, this, this._root));
-        i++;
+      this.fileExtension = KaitaiStream.bytesToStr(this._io.readBytesTerm(0, false, true, true), "ASCII");
+      if (this.fileExtension != "") {
+        this.treeDirectories = [];
+        var i = 0;
+        do {
+          var _ = new TreeDirectoriesT(this._io, this, this._root);
+          this.treeDirectories.push(_);
+          i++;
+        } while (!(_.fileDirectory == ""));
       }
     }
 
     return TreeExtensionsT;
   })();
 
-  var ChecksumExternalT = ValveVpk2.ChecksumExternalT = (function() {
+  var ChecksumExternalT = ValveVpk.ChecksumExternalT = (function() {
     function ChecksumExternalT(_io, _parent, _root) {
       this._io = _io;
       this._parent = _parent;
@@ -160,7 +217,7 @@ var ValveVpk2 = (function() {
     return ChecksumExternalT;
   })();
 
-  var ChecksumsExternalT = ValveVpk2.ChecksumsExternalT = (function() {
+  var ChecksumsExternalT = ValveVpk.ChecksumsExternalT = (function() {
     function ChecksumsExternalT(_io, _parent, _root) {
       this._io = _io;
       this._parent = _parent;
@@ -180,7 +237,7 @@ var ValveVpk2 = (function() {
     return ChecksumsExternalT;
   })();
 
-  var TreeDirectoriesT = ValveVpk2.TreeDirectoriesT = (function() {
+  var TreeDirectoriesT = ValveVpk.TreeDirectoriesT = (function() {
     function TreeDirectoriesT(_io, _parent, _root) {
       this._io = _io;
       this._parent = _parent;
@@ -189,14 +246,22 @@ var ValveVpk2 = (function() {
       this._read();
     }
     TreeDirectoriesT.prototype._read = function() {
-      this.directory = KaitaiStream.bytesToStr(this._io.readBytesTerm(0, false, true, true), "ASCII");
-      this.treeFiles = new TreeFilesT(this._io, this, this._root);
+      this.fileDirectory = KaitaiStream.bytesToStr(this._io.readBytesTerm(0, false, true, true), "ASCII");
+      if (this.fileDirectory != "") {
+        this.treeFiles = [];
+        var i = 0;
+        do {
+          var _ = new TreeFilesT(this._io, this, this._root);
+          this.treeFiles.push(_);
+          i++;
+        } while (!(_.fileName == ""));
+      }
     }
 
     return TreeDirectoriesT;
   })();
 
-  var ChecksumInternalT = ValveVpk2.ChecksumInternalT = (function() {
+  var ChecksumInternalT = ValveVpk.ChecksumInternalT = (function() {
     function ChecksumInternalT(_io, _parent, _root) {
       this._io = _io;
       this._parent = _parent;
@@ -213,7 +278,7 @@ var ValveVpk2 = (function() {
     return ChecksumInternalT;
   })();
 
-  var Vpk2HeaderT = ValveVpk2.Vpk2HeaderT = (function() {
+  var Vpk2HeaderT = ValveVpk.Vpk2HeaderT = (function() {
     function Vpk2HeaderT(_io, _parent, _root) {
       this._io = _io;
       this._parent = _parent;
@@ -231,7 +296,7 @@ var ValveVpk2 = (function() {
     return Vpk2HeaderT;
   })();
 
-  var SignatureT = ValveVpk2.SignatureT = (function() {
+  var SignatureT = ValveVpk.SignatureT = (function() {
     function SignatureT(_io, _parent, _root) {
       this._io = _io;
       this._parent = _parent;
@@ -249,7 +314,21 @@ var ValveVpk2 = (function() {
     return SignatureT;
   })();
 
-  return ValveVpk2;
+  var UnknownData = ValveVpk.UnknownData = (function() {
+    function UnknownData(_io, _parent, _root) {
+      this._io = _io;
+      this._parent = _parent;
+      this._root = _root || this;
+
+      this._read();
+    }
+    UnknownData.prototype._read = function() {
+    }
+
+    return UnknownData;
+  })();
+
+  return ValveVpk;
 })();
-return ValveVpk2;
+return ValveVpk;
 }));
