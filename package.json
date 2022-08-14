@@ -18,5 +18,8 @@
   "homepage": "https://github.com/JaycieErysdren/Liberator#readme",
   "devDependencies": {
     "electron": "^20.0.2"
+  },
+  "dependencies": {
+    "kaitai-struct": "^0.10.0"
   }
 }

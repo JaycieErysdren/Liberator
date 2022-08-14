@@ -3,7 +3,8 @@ const { contextBridge, ipcRenderer } = require("electron")
 contextBridge.exposeInMainWorld("electronAPI", {
 	openFile: () => ipcRenderer.invoke("dialog:openFile"),
 	closeApp: () => ipcRenderer.send("closeApp"),
-	consoleMessage: (callback) => ipcRenderer.on("consoleMessage", callback)
+	consoleMessage: (callback) => ipcRenderer.on("consoleMessage", callback),
+	startJSTree: (callback) => ipcRenderer.on("startJSTree", callback)
 })
 
 window.addEventListener("DOMContentLoaded", () => {

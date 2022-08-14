@@ -111,7 +111,14 @@ html {
 	padding-left: 1.5vh;
 }
 
-#actions { grid-area: 1 / 3 / 3 / 4; }
+#actions-container {
+	grid-area: 1 / 3 / 3 / 4;
+	overflow: auto;
+}
+
+#actions {
+	margin: 8pt;
+}
 
 #file-info-container {
 	grid-area: 3 / 3 / 5 / 4;
@@ -124,6 +131,7 @@ html {
 
 #viewer {
 	grid-area: 1 / 4 / 4 / 5;
+	background-color: #909090;
 }
 
 #viewer-controls {
@@ -185,6 +193,19 @@ html {
 
 .liberator-message h2 {
 	padding-bottom: 2vh;
+}
+
+.liberator-action-button {
+	background-color: #171717;
+	border: 1px solid #ffffff;
+	cursor: pointer;
+	padding: 8pt;
+	transition: background-color 0.1s;
+	margin-bottom: 8pt;
+}
+
+.liberator-action-button:hover {
+	background-color: #232323;
 }
 
 .menu-bar-item {

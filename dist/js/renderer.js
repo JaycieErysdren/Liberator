@@ -50,7 +50,20 @@ function initWindow() {
 //
 
 window.electronAPI.consoleMessage((event, value) => {
-	consoleAddMessage(value)
+	firstMessage = value["firstMessage"]
+	spanClass = value["spanClass"]
+	secondMessage = value["secondMessage"]
+
+	consoleAddMessage(firstMessage, spanClass, secondMessage)
+})
+
+window.electronAPI.startJSTree((event, data) => {
+	$("#file-structure-tree").jstree("destroy").empty()
+	$("#file-structure-tree").jstree({
+		"core" : {
+			"data" : data
+		}
+	})
 })
 
 function consoleAddMessage(firstMessage, spanClass = "", secondMessage = "") {
