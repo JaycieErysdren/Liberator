@@ -15,7 +15,7 @@ var filePath
 document.onload = initWindow()
 
 function initWindow() {
-	consoleAddMessage("Initialized Liberator.", "good")
+	consoleMessage("Initialized Liberator.", "good")
 
 	let openFileButton = document.getElementById("menu-bar-open-file")
 	let quitButton = document.getElementById("menu-bar-quit")
@@ -30,11 +30,11 @@ function initWindow() {
 		filePath = await window.electronAPI.openFile()
 
 		if (Array.isArray(filePath)) {
-			consoleAddMessage("Error: ", "error", "Invalid file selection response.")
+			consoleMessage("Error: ", "error", "Invalid file selection response.")
 		} else if (filePath === undefined) {
-			consoleAddMessage("Warning: ", "warning", "User cancelled file selection.")
+			consoleMessage("Warning: ", "warning", "User cancelled file selection.")
 		} else {
-			consoleAddMessage("User selected file: ", "good", filePath)
+			consoleMessage("User selected file: ", "good", filePath)
 		}
 	})
 	quitButton.addEventListener("click", () => {
@@ -54,19 +54,22 @@ window.electronAPI.consoleMessage((event, value) => {
 	spanClass = value["spanClass"]
 	secondMessage = value["secondMessage"]
 
-	consoleAddMessage(firstMessage, spanClass, secondMessage)
+	consoleMessage(firstMessage, spanClass, secondMessage)
 })
 
 window.electronAPI.startJSTree((event, data) => {
 	$("#file-structure-tree").jstree("destroy").empty()
 	$("#file-structure-tree").jstree({
-		"core" : {
-			"data" : data
+		"core": {
+			"themes": {
+				"name": "default-dark"
+			},
+			"data": data
 		}
 	})
 })
 
-function consoleAddMessage(firstMessage, spanClass = "", secondMessage = "") {
+function consoleMessage(firstMessage, spanClass = "", secondMessage = "") {
 	let console = document.getElementById("console")
 	let container = document.getElementById("console-container")
 
@@ -98,4 +101,46 @@ function hideMessage() {
 	for (let i = 0; i < messageDIVs.length; i++) {
 		messageDIVs[i].style.display = "none"
 	}
+}
+
+//
+// file information window
+//
+
+window.electronAPI.fileInfoMessage((event, value) => {
+	firstMessage = value["firstMessage"]
+	spanClass = value["spanClass"]
+	secondMessage = value["secondMessage"]
+
+	fileInfoMessage(firstMessage, spanClass, secondMessage)
+})
+
+window.electronAPI.fileInfoSet((event, value) => {
+	clearHTMLbyID("file-info")
+	for (let i = 0; i < value.length; i++) {
+		fileInfoMessage(value[i][0], "good", value[i][1])
+	}
+})
+
+function fileInfoMessage(firstMessage, spanClass = "", secondMessage = "") {
+	let infoBox = document.getElementById("file-info")
+
+	if (spanClass != "") {
+		infoBox.innerHTML += "<span class='" + spanClass + "'>" + firstMessage + "</span>" + secondMessage + "<br>"
+	} else {
+		infoBox.innerHTML += firstMessage + secondMessage + "<br>"
+	}
+}
+
+//
+// generic functions
+//
+
+window.electronAPI.clearHTMLbyID((event, value) => {
+	clearHTMLbyID(value)
+})
+
+function clearHTMLbyID(item) {
+	let container = document.getElementById(item)
+	container.innerHTML = ""
 }
