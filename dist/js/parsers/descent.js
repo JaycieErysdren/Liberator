@@ -37,6 +37,7 @@ module.exports = {
 
 		window.webContents.send("clearHTMLbyID", "actions")
 		window.webContents.send("addActionButton", {"buttonText": "Extract All", "buttonFunction": "pigfile-extract-all"})
+		window.webContents.send("addActionButton", {"buttonText": "Extract Selected", "buttonFunction": "pigfile-extract-selected"})
 		window.webContents.send("addActionButton", {"buttonText": "Extract Bitmaps", "buttonFunction": "pigfile-extract-bitmaps"})
 		window.webContents.send("addActionButton", {"buttonText": "Extract Sounds", "buttonFunction": "pigfile-extract-sounds"})
 
@@ -81,6 +82,7 @@ module.exports = {
 
 		window.webContents.send("clearHTMLbyID", "actions")
 		window.webContents.send("addActionButton", {"buttonText": "Extract All", "buttonFunction": "hogfile-extract-all"})
+		window.webContents.send("addActionButton", {"buttonText": "Extract Selected", "buttonFunction": "hogfile-extract-selected"})
 
 		window.webContents.send("fileInfoSet", fileInfo)
 		window.webContents.send("startJSTree", jsonData)

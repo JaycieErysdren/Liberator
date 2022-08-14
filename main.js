@@ -142,8 +142,10 @@ function loadFile(filePath) {
 			} else if (formats_tankengine.includes(fileExt)) {
 				fileType = "Tank Engine Model"
 			} else if (formats_idtech.includes(fileExt)) {
+				let idTechParser = require("./dist/js/parsers/idtech")
 				if (fileExtLower == "pak") {
 					fileType = "idTech Packfile V1"
+					idTechParser.parsePak(mainWindow, data, fileName)
 				} else if (fileExtLower == "pk3") {
 					fileType = "idTech Packfile V3"
 				}

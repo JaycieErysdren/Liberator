@@ -60,6 +60,7 @@ window.electronAPI.consoleMessage((event, value) => {
 window.electronAPI.startJSTree((event, data) => {
 	$("#file-structure-tree").jstree("destroy").empty()
 	$("#file-structure-tree").jstree({
+		"plugins": ["sort"],
 		"core": {
 			"themes": {
 				"name": "default-dark"
