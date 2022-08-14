@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
 	consoleMessage: (callback) => ipcRenderer.on("consoleMessage", callback),
 	fileInfoMessage: (callback) => ipcRenderer.on("fileInfoMessage", callback),
 	fileInfoSet: (callback) => ipcRenderer.on("fileInfoSet", callback),
+	addActionButton: (callback) => ipcRenderer.on("addActionButton", callback),
 	clearHTMLbyID: (callback) => ipcRenderer.on("clearHTMLbyID", callback),
 	startJSTree: (callback) => ipcRenderer.on("startJSTree", callback)
 })

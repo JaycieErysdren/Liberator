@@ -29,11 +29,16 @@ module.exports = {
 		let fileInfo = [
 			["File Name: ", fileName],
 			["File Type: ", "Descent Pigfile"],
-			["File Size: ", data.length.toString() + " bytes"],
+			["File Size: ", (data.length / 1000).toString() + " kilobytes"],
 			["", ""],
 			["Number of Bitmaps: ", pigFile.bitmaps.length.toString()],
 			["Number of Sounds: ", pigFile.sounds.length.toString()]
 		]
+
+		window.webContents.send("clearHTMLbyID", "actions")
+		window.webContents.send("addActionButton", {"buttonText": "Extract All", "buttonFunction": "pigfile-extract-all"})
+		window.webContents.send("addActionButton", {"buttonText": "Extract Bitmaps", "buttonFunction": "pigfile-extract-bitmaps"})
+		window.webContents.send("addActionButton", {"buttonText": "Extract Sounds", "buttonFunction": "pigfile-extract-sounds"})
 
 		window.webContents.send("fileInfoSet", fileInfo)
 		window.webContents.send("startJSTree", jsonData)
@@ -69,10 +74,13 @@ module.exports = {
 		let fileInfo = [
 			["File Name: ", fileName],
 			["File Type: ", "Descent Hogfile"],
-			["File Size: ", data.length.toString() + " bytes"],
+			["File Size: ", (data.length / 1000).toString() + " kilobytes"],
 			["", ""],
 			["Number of Files: ", hogFile.chunks.length.toString()]
 		]
+
+		window.webContents.send("clearHTMLbyID", "actions")
+		window.webContents.send("addActionButton", {"buttonText": "Extract All", "buttonFunction": "hogfile-extract-all"})
 
 		window.webContents.send("fileInfoSet", fileInfo)
 		window.webContents.send("startJSTree", jsonData)

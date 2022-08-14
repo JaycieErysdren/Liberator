@@ -133,6 +133,28 @@ function fileInfoMessage(firstMessage, spanClass = "", secondMessage = "") {
 }
 
 //
+// action buttons
+//
+
+window.electronAPI.addActionButton((event, value) => {
+	buttonText = value["buttonText"]
+	buttonFunction = value["buttonFunction"]
+
+	addActionButton(buttonText, buttonFunction)
+})
+
+function addActionButton(buttonText, buttonFunction) {
+	let container = document.getElementById("actions")
+
+	let button = document.createElement("div")
+	button.setAttribute("class", "liberator-action-button")
+	button.setAttribute("data-func", buttonFunction)
+	button.appendChild(document.createTextNode(buttonText))
+
+	container.appendChild(button)
+}
+
+//
 // generic functions
 //
 
