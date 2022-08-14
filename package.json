@@ -1,0 +1,22 @@
+{
+  "name": "liberator",
+  "version": "0.0.1",
+  "description": "Obscure file format viewer.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JaycieErysdren/Liberator.git"
+  },
+  "author": "Jaycie Erysdren",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JaycieErysdren/Liberator/issues"
+  },
+  "homepage": "https://github.com/JaycieErysdren/Liberator#readme",
+  "devDependencies": {
+    "electron": "^20.0.2"
+  }
+}
