@@ -187,13 +187,18 @@ var BrenderDatafile = (function() {
       this._read();
     }
     BrPixelmapT.prototype._read = function() {
-      this.un1 = this._io.readBytes(1);
+      this.bitmapType = this._io.readBitsIntBe(8);
+      this._io.alignToByte();
       this.rowBytes = this._io.readU2be();
       this.width = this._io.readU2be();
       this.height = this._io.readU2be();
       this.originX = this._io.readU2be();
       this.originY = this._io.readU2be();
       this.identifier = KaitaiStream.bytesToStr(this._io.readBytesTerm(0, false, true, true), "ascii");
+      if (this.bitmapType == 3) {
+        this.palette = new BrDatafileChunkT(this._io, this, this._root);
+      }
+      this.pixelData = new BrDatafileChunkT(this._io, this, this._root);
     }
 
     return BrPixelmapT;
@@ -240,8 +245,20 @@ var BrenderDatafile = (function() {
       this._read();
     }
     BrPixelsT.prototype._read = function() {
-      this.paddingTop = this._io.readBytes(8);
-      this.pixelData = this._io.readBytes((this._parent.lenData - 8));
+      this.numPixels = this._io.readU4be();
+      this.lenPixel = this._io.readU4be();
+      if (this.lenPixel == 1) {
+        this.dataPaletted = [];
+        for (var i = 0; i < (this.lenPixel * this.numPixels); i++) {
+          this.dataPaletted.push(this._io.readU1());
+        }
+      }
+      if (this.lenPixel == 4) {
+        this.dataRgb = [];
+        for (var i = 0; i < Math.floor((this.lenPixel * this.numPixels) / 4); i++) {
+          this.dataRgb.push(new RgbT(this._io, this, this._root));
+        }
+      }
       this.paddingBottom = this._io.readBytes(8);
     }
 
@@ -362,6 +379,24 @@ var BrenderDatafile = (function() {
     }
 
     return BrUvIndexT;
+  })();
+
+  var RgbT = BrenderDatafile.RgbT = (function() {
+    function RgbT(_io, _parent, _root) {
+      this._io = _io;
+      this._parent = _parent;
+      this._root = _root || this;
+
+      this._read();
+    }
+    RgbT.prototype._read = function() {
+      this.none = this._io.readU1();
+      this.r = this._io.readU1();
+      this.g = this._io.readU1();
+      this.b = this._io.readU1();
+    }
+
+    return RgbT;
   })();
 
   return BrenderDatafile;

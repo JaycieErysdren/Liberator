@@ -156,7 +156,9 @@ function loadFile(filePath) {
 					SlaveDriverParser.parsePic(mainWindow, data, fileName)
 				}
 			} else if (formats_brender.includes(fileExt)) {
+				let BRenderParser = require("./parsers/brender")
 				fileType = "BRender Datafile"
+				BRenderParser.parseDataFile(mainWindow, data, fileName)
 			} else if (formats_tankengine.includes(fileExt)) {
 				fileType = "Tank Engine Model"
 			} else if (formats_idtech.includes(fileExt)) {

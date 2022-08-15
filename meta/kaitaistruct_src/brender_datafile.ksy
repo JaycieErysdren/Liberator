@@ -55,6 +55,17 @@ types:
       - id: version
         type: u4
 
+  rgb_t:
+    seq:
+      - id: none
+        type: u1
+      - id: r
+        type: u1
+      - id: g
+        type: u1
+      - id: b
+        type: u1
+
   br_pixelmap_t:
     seq:
       - id: bitmap_type
@@ -72,13 +83,28 @@ types:
       - id: identifier
         type: strz
         encoding: ascii
+      - id: palette
+        type: br_datafile_chunk_t
+        if: bitmap_type == 3
+      - id: pixel_data
+        type: br_datafile_chunk_t
 
   br_pixels_t:
     seq:
-      - id: padding_top
-        size: 8
-      - id: pixel_data
-        size: _parent.len_data - 8
+      - id: num_pixels
+        type: u4
+      - id: len_pixel
+        type: u4
+      - id: data_paletted
+        type: u1
+        repeat: expr
+        repeat-expr: len_pixel * num_pixels
+        if: len_pixel == 1
+      - id: data_rgb
+        type: rgb_t
+        repeat: expr
+        repeat-expr: (len_pixel * num_pixels) / 4
+        if: len_pixel == 4
       - id: padding_bottom
         size: 8
 
