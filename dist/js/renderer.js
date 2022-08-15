@@ -152,6 +152,10 @@ function addActionButton(buttonText, buttonFunction) {
 	button.setAttribute("data-func", buttonFunction)
 	button.appendChild(document.createTextNode(buttonText))
 
+	button.addEventListener("click", () => {
+		window.electronAPI.extractToDirectory([filePath, buttonFunction])
+	})
+
 	container.appendChild(button)
 }
 

@@ -1,5 +1,6 @@
 let KaitaiStream = require("kaitai-struct/KaitaiStream")
 let fileTree = require("../modules/filetree")
+let fs = require("fs")
 
 module.exports = {
 	parsePig: function(window, data, fileName) {
@@ -43,6 +44,30 @@ module.exports = {
 
 		window.webContents.send("fileInfoSet", fileInfo)
 		window.webContents.send("startJSTree", jsonData)
+	},
+	extractPig: function(window, data, outputDirectory) {
+		let DescentPig = require("../formats/DescentPig")
+		let pigFile = new DescentPig(new KaitaiStream(data))
+
+		for (let i = 0; i < pigFile.bitmaps.length; i++) {
+			let bitmap = pigFile.bitmaps[i]
+
+			let dataToWrite
+
+			if (bitmap.flags & 8) {
+				dataToWrite = Uint8Array.from(bitmap.getRleData.pixels)
+			} else {
+				dataToWrite = Uint8Array.from(bitmap.getLinearData)
+			}
+
+			fs.writeFile(outputDirectory + "/" + i.toString() + " - " + bitmap.name, dataToWrite, (err) => {
+				if (err) {
+					window.webContents.send("consoleMessage", {firstMessage: "Error: ", spanClass: "error", secondMessage: "Couldn't write file."})
+				} else {
+					window.webContents.send("consoleMessage", {firstMessage: "Successfully wrote file to disk.", spanClass: "good", secondMessage: ""})
+				}
+			})
+		}
 	},
 	parseHog: function(window, data, fileName) {
 		let DescentHog = require("../formats/DescentHog")

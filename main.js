@@ -6,9 +6,9 @@
 // requirements
 //
 
-let fs = require("fs")
 let { app, BrowserWindow, ipcMain, dialog } = require("electron")
 let path = require("path")
+let fs = require("fs")
 
 //
 // defs
@@ -66,6 +66,8 @@ function createWindow() {
 
 app.whenReady().then(() => {
 	ipcMain.handle("dialog:openFile", handleFileOpen)
+	//ipcMain.handle("dialog:openDirectory", handleDirectoryOpen)
+	ipcMain.on("extractToDirectory", handleDirectoryOpen)
 	ipcMain.on("closeApp", closeApp)
 
 	createWindow()
@@ -103,6 +105,19 @@ async function handleFileOpen() {
 		return
 	} else {
 		loadFile(filePaths[0])
+		return filePaths[0]
+	}
+}
+
+async function handleDirectoryOpen(event, fileInfo) {
+	const { canceled, filePaths } = await dialog.showOpenDialog({
+		properties: ["openDirectory"],
+		defaultPath: "/home/jaycie/Projects/Liberator/meta/test_files" //REMOVEME
+	})
+	if (canceled) {
+		return
+	} else {
+		extractToDirectory(filePaths[0], fileInfo[0], fileInfo[1])
 		return filePaths[0]
 	}
 }
@@ -165,6 +180,27 @@ function loadFile(filePath) {
 
 			let fileMessage = "\"" + fileType + "\" based on extension \"" + fileExt + "\""
 			mainWindow.webContents.send("consoleMessage", {firstMessage: "Assuming file type: ", spanClass: "good", secondMessage: fileMessage})
+		}
+	})
+}
+
+function extractToDirectory(directoryPath, filePath, actionType) {
+	console.log("filePath: " + filePath)
+	console.log("directoryPath: " + directoryPath)
+	console.log("actionType: " + actionType)
+
+	fs.readFile(filePath, null, (err, data) => {
+		if (err) {
+			mainWindow.webContents.send("consoleMessage", {firstMessage: "Error: ", spanClass: "error", secondMessage: err.message})
+			return
+		} else {
+			if (actionType == "pigfile-extract-all") {
+				let DescentParser = require("./dist/js/parsers/descent")
+				DescentParser.extractPig(mainWindow, data, directoryPath)
+			} else {
+				mainWindow.webContents.send("consoleMessage", {firstMessage: "Error: ", spanClass: "error", secondMessage: "Unknown file type!"})
+				return
+			}
 		}
 	})
 }

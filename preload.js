@@ -8,7 +8,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
 	fileInfoSet: (callback) => ipcRenderer.on("fileInfoSet", callback),
 	addActionButton: (callback) => ipcRenderer.on("addActionButton", callback),
 	clearHTMLbyID: (callback) => ipcRenderer.on("clearHTMLbyID", callback),
-	startJSTree: (callback) => ipcRenderer.on("startJSTree", callback)
+	startJSTree: (callback) => ipcRenderer.on("startJSTree", callback),
+	extractToDirectory: (fileInfo) => ipcRenderer.send("extractToDirectory", fileInfo)
 })
 
 window.addEventListener("DOMContentLoaded", () => {
