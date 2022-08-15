@@ -7,7 +7,7 @@ module.exports = {
 		let picFile = new PicQuake(new KaitaiStream(data))
 
 		let jsonData = []
-		jsonData.push(fileTree.item("file", "#", fileName, "./images/silk/world.png", true))
+		jsonData.push(fileTree.item("file", "#", fileName, "./images/silk/picture.png", true))
 
 		let picPalette = picFile.palette
 		let picData = picFile.bitmap
@@ -78,15 +78,28 @@ module.exports = {
 
 		let jsonData = []
 		jsonData.push(fileTree.item("file", "#", fileName, "./images/silk/world.png", true))
+		jsonData.push(fileTree.item("resources", "file", "Other Resources", "./images/silk/package.png", false))
+		jsonData.push(fileTree.item("sounds", "file", "Sounds", "./images/silk/package.png", false))
+		jsonData.push(fileTree.item("textures", "file", "Textures", "./images/silk/package.png", false))
 
 		let numTextures = 0
+		let numOtherResources = 0
 
 		for (let i = 0; i < levFile.resources.numResources; i++) {
 			let resource = levFile.resources.resources[i]
 
 			if (resource.resourceType == 130) {
+				jsonData.push(fileTree.item("texture" + numTextures.toString(), "textures", "Texture " + numTextures.toString(), "./images/silk/picture.png", true))
 				numTextures++
+			} else {
+				jsonData.push(fileTree.item("resource" + numOtherResources.toString(), "resources", "Resource " + numOtherResources.toString(), "./images/silk/page.png", true))
+				numOtherResources++
 			}
+		}
+
+		for (let i = 0; i < levFile.resources.numSounds; i++) {
+			let sound = levFile.resources.sounds[i]
+			jsonData.push(fileTree.item("sound" + i.toString(), "sounds", "Sound " + i.toString(), "./images/silk/sound.png", true))
 		}
 
 		let fileInfo = [
