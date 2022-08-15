@@ -23,8 +23,10 @@ var BrenderDatafile = (function() {
   }
   BrenderDatafile.prototype._read = function() {
     this.chunks = [];
-    for (var i = 0; i < 9; i++) {
+    var i = 0;
+    while (!this._io.isEof()) {
       this.chunks.push(new BrDatafileChunkT(this._io, this, this._root));
+      i++;
     }
   }
 
@@ -91,6 +93,9 @@ var BrenderDatafile = (function() {
         break;
       case 3:
         this.data = new BrPixelmapT(this._io, this, this._root);
+        break;
+      case 33:
+        this.data = new BrPixelsT(this._io, this, this._root);
         break;
       case 23:
         this.data = new BrVertexIndexT(this._io, this, this._root);
@@ -182,6 +187,7 @@ var BrenderDatafile = (function() {
       this._read();
     }
     BrPixelmapT.prototype._read = function() {
+      this.un1 = this._io.readBytes(1);
       this.rowBytes = this._io.readU2be();
       this.width = this._io.readU2be();
       this.height = this._io.readU2be();
@@ -223,6 +229,23 @@ var BrenderDatafile = (function() {
     }
 
     return BrUvT;
+  })();
+
+  var BrPixelsT = BrenderDatafile.BrPixelsT = (function() {
+    function BrPixelsT(_io, _parent, _root) {
+      this._io = _io;
+      this._parent = _parent;
+      this._root = _root || this;
+
+      this._read();
+    }
+    BrPixelsT.prototype._read = function() {
+      this.paddingTop = this._io.readBytes(8);
+      this.pixelData = this._io.readBytes((this._parent.lenData - 8));
+      this.paddingBottom = this._io.readBytes(8);
+    }
+
+    return BrPixelsT;
   })();
 
   var BrVertexT = BrenderDatafile.BrVertexT = (function() {

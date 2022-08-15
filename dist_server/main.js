@@ -61,7 +61,7 @@ function createWindow() {
 		}
 	})
 	mainWindow.setMenuBarVisibility(true) // FIXME: change to "false" before releasing a version
-	mainWindow.loadFile("dist/index.html")
+	mainWindow.loadFile("dist_client/index.html")
 }
 
 app.whenReady().then(() => {
@@ -145,7 +145,7 @@ function loadFile(filePath) {
 			if (formats_3dmm.includes(fileExt)) {
 				fileType = "Microsoft 3D Movie Maker Chunkfile"
 			} else if (formats_slavedriver.includes(fileExt)) {
-				let SlaveDriverParser = require("./dist/js/parsers/slavedriver")
+				let SlaveDriverParser = require("./parsers/slavedriver")
 				if (fileExtLower == "lev") {
 					fileType = "SlaveDriver Level"
 					SlaveDriverParser.parseLev(mainWindow, data, fileName)
@@ -160,7 +160,7 @@ function loadFile(filePath) {
 			} else if (formats_tankengine.includes(fileExt)) {
 				fileType = "Tank Engine Model"
 			} else if (formats_idtech.includes(fileExt)) {
-				let idTechParser = require("./dist/js/parsers/idtech")
+				let idTechParser = require("./parsers/idtech")
 				if (fileExtLower == "pak") {
 					fileType = "idTech Packfile V1"
 					idTechParser.parsePak(mainWindow, data, fileName)
@@ -168,7 +168,7 @@ function loadFile(filePath) {
 					fileType = "idTech Packfile V3"
 				}
 			} else if (formats_descent.includes(fileExt)) {
-				let DescentParser = require("./dist/js/parsers/descent")
+				let DescentParser = require("./parsers/descent")
 				if (fileExtLower == "hog") {
 					fileType = "Descent Hogfile"
 					DescentParser.parseHog(mainWindow, data, fileName)
@@ -198,10 +198,10 @@ function extractToDirectory(directoryPath, filePath, actionType) {
 			return
 		} else {
 			if (actionType == "pigfile-extract-all") {
-				let DescentParser = require("./dist/js/parsers/descent")
+				let DescentParser = require("./parsers/descent")
 				DescentParser.extractPig(mainWindow, data, directoryPath)
 			} else {
-				mainWindow.webContents.send("consoleMessage", {firstMessage: "Error: ", spanClass: "error", secondMessage: "Unknown file type!"})
+				mainWindow.webContents.send("consoleMessage", {firstMessage: "Error: ", spanClass: "error", secondMessage: "Unknown action type!"})
 				return
 			}
 		}

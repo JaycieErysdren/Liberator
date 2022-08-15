@@ -1,6 +1,5 @@
 let KaitaiStream = require("kaitai-struct/KaitaiStream")
 let fileTree = require("../modules/filetree")
-let THREE = require("three")
 
 module.exports = {
 	parsePic: function(window, data, fileName) {
@@ -48,18 +47,7 @@ module.exports = {
 			}
 		}
 
-		let spriteMap = new THREE.DataTexture(pixelData, width, height);
-		spriteMap.needsUpdate = true;
-		spriteMap.minFilter = THREE.NearestFilter	
-
-		let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
-		let spriteObject = new THREE.Sprite(spriteMaterial);
-		spriteObject.scale.set(width, height, 1)
-		spriteObject.position.x = 0
-		spriteObject.position.y = 0
-		spriteObject.position.z = 0
-
-		console.log(spriteObject)
+		let spriteObject = {"type": "threeSprite", "position": [0, 0, 0], "pixel_data": pixelData, "width": width, "height": height}
 
 		let threeInfo = {
 			"objects": [spriteObject],

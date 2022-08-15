@@ -9,8 +9,7 @@ doc-ref: fw/formats.h
 seq:
   - id: chunks
     type: br_datafile_chunk_t
-    repeat: expr
-    repeat-expr: 9
+    repeat: eos
 
 types:
   br_datafile_chunk_t:
@@ -31,7 +30,7 @@ types:
             23: br_vertex_index_t # vertices
             24: br_uv_index_t # vertex uvs
             26: br_face_material_index_t # face material assignments
-            #33: br_pixels_t # raw pixels
+            33: br_pixels_t # raw pixels
             35: br_actor_t # actor def
             53: br_face_index_t # faces
             54: br_model_t # model def
@@ -58,6 +57,8 @@ types:
 
   br_pixelmap_t:
     seq:
+      - id: bitmap_type
+        type: b8
       - id: row_bytes
         type: u2
       - id: width
@@ -71,6 +72,15 @@ types:
       - id: identifier
         type: strz
         encoding: ascii
+
+  br_pixels_t:
+    seq:
+      - id: padding_top
+        size: 8
+      - id: pixel_data
+        size: _parent.len_data - 8
+      - id: padding_bottom
+        size: 8
 
   br_model_t:
     seq:

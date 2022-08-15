@@ -1,5 +1,5 @@
-import * as THREE from "./three.module.js"
-import { OrbitControls } from "./OrbitControls.js"
+import * as THREE from "./dependencies/three.module.js"
+import { OrbitControls } from "./dependencies/OrbitControls.js"
 
 export {
 	buildThreeScene
@@ -12,8 +12,6 @@ function buildThreeScene(data) {
 	let campos = data["camera_position"]
 	let camdist = data["camera_draw_distance"]
 
-	console.log("HELLOOOO")
-
 	init()
 	render()
 
@@ -23,9 +21,20 @@ function buildThreeScene(data) {
 		scene = new THREE.Scene()
 
 		object_array.forEach(function(item) {
-			//let object = JSON.parse(item)
-			//console.log(object)
-			scene.add(item)
+			if (item["type"] == "threeSprite") {
+				let spriteMap = new THREE.DataTexture(item["pixel_data"], item["width"], item["height"]);
+				spriteMap.needsUpdate = true;
+				spriteMap.minFilter = THREE.NearestFilter	
+		
+				let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
+				let spriteObject = new THREE.Sprite(spriteMaterial);
+				spriteObject.scale.set(item["width"], item["height"], 1)
+				spriteObject.position.x = item["position"][0]
+				spriteObject.position.y = item["position"][1]
+				spriteObject.position.z = item["position"][2]
+
+				scene.add(spriteObject)
+			}
 		})
 
 		scene.background = new THREE.Color(0x909090)

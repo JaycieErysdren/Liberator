@@ -1,8 +1,8 @@
 {
   "name": "liberator",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "Obscure file format viewer.",
-  "main": "js/main.js",
+  "main": "dist_server/main.js",
   "scripts": {
     "start": "electron ."
   },
