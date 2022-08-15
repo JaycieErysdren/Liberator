@@ -62,7 +62,7 @@ module.exports = {
 					["File Size: ", (data.length / 1000).toString() + " kilobytes"],
 					["", ""],
 					["Width: ", width.toString()],
-					["Height: ", height.toString()],
+					["Height: ", height.toString()]
 				]
 
 				window.webContents.send("clearHTMLbyID", "actions")

@@ -46,6 +46,8 @@ const formats_descent = [
 
 const formats_all = formats_3dmm.concat(formats_slavedriver, formats_brender, formats_tankengine, formats_idtech, formats_descent)
 
+let warning_unsupported = "While the structure of this filetype is known and supported, this program is in early alpha and the parser has not been written yet."
+
 let mainWindow
 
 //
@@ -133,10 +135,10 @@ function closeApp() {
 function loadFile(filePath) {
 	fs.readFile(filePath, null, (err, data) => {
 		if (err) {
-			mainWindow.webContents.send("consoleMessage", {firstMessage: "Error: ", spanClass: "error", secondMessage: err.message})
+			mainWindow.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": err.message})
 			return
 		} else {
-			mainWindow.webContents.send("consoleMessage", {firstMessage: "File loaded successfully.", spanClass: "good", secondMessage: ""})
+			mainWindow.webContents.send("consoleMessage", {"firstMessage": "File loaded successfully.", "spanClass": "good", "secondMessage": ""})
 			let fileExt = filePath.split(".").pop()
 			let fileExtLower = fileExt.toLowerCase()
 			let fileType
@@ -144,13 +146,15 @@ function loadFile(filePath) {
 
 			if (formats_3dmm.includes(fileExt)) {
 				fileType = "Microsoft 3D Movie Maker Chunkfile"
+				mainWindow.webContents.send("consoleMessage", {"firstMessage": "Warning: ", "spanClass": "warning", "secondMessage": warning_unsupported})
 			} else if (formats_slavedriver.includes(fileExt)) {
 				let SlaveDriverParser = require("./parsers/slavedriver")
 				if (fileExtLower == "lev") {
 					fileType = "SlaveDriver Level"
-					SlaveDriverParser.parseLev(mainWindow, data, fileName)
+					mainWindow.webContents.send("consoleMessage", {"firstMessage": "Warning: ", "spanClass": "warning", "secondMessage": warning_unsupported})
 				} else if (fileExtLower == "pcs") {
 					fileType = "SlaveDriver Bitmap Collection"
+					mainWindow.webContents.send("consoleMessage", {"firstMessage": "Warning: ", "spanClass": "warning", "secondMessage": warning_unsupported})
 				} else if (fileExtLower == "pic") {
 					fileType = "SlaveDriver Bitmap"
 					SlaveDriverParser.parsePic(mainWindow, data, fileName)
@@ -161,6 +165,7 @@ function loadFile(filePath) {
 				BRenderParser.parseDataFile(mainWindow, data, fileName)
 			} else if (formats_tankengine.includes(fileExt)) {
 				fileType = "Tank Engine Model"
+				mainWindow.webContents.send("consoleMessage", {"firstMessage": "Warning: ", "spanClass": "warning", "secondMessage": warning_unsupported})
 			} else if (formats_idtech.includes(fileExt)) {
 				let idTechParser = require("./parsers/idtech")
 				if (fileExtLower == "pak") {
@@ -168,6 +173,7 @@ function loadFile(filePath) {
 					idTechParser.parsePak(mainWindow, data, fileName)
 				} else if (fileExtLower == "pk3") {
 					fileType = "idTech Packfile V3"
+					mainWindow.webContents.send("consoleMessage", {"firstMessage": "Warning: ", "spanClass": "warning", "secondMessage": warning_unsupported})
 				}
 			} else if (formats_descent.includes(fileExt)) {
 				let DescentParser = require("./parsers/descent")
@@ -179,12 +185,12 @@ function loadFile(filePath) {
 					DescentParser.parsePig(mainWindow, data, fileName)
 				}
 			} else {
-				mainWindow.webContents.send("consoleMessage", {firstMessage: "Error: ", spanClass: "error", secondMessage: "Unknown file type!"})
+				mainWindow.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Unknown file type!"})
 				return
 			}
 
 			let fileMessage = "\"" + fileType + "\" based on extension \"" + fileExt + "\""
-			mainWindow.webContents.send("consoleMessage", {firstMessage: "Assuming file type: ", spanClass: "good", secondMessage: fileMessage})
+			mainWindow.webContents.send("consoleMessage", {"firstMessage": "Assuming file type: ", "spanClass": "good", "secondMessage": fileMessage})
 		}
 	})
 }
@@ -196,14 +202,14 @@ function extractToDirectory(directoryPath, filePath, actionType) {
 
 	fs.readFile(filePath, null, (err, data) => {
 		if (err) {
-			mainWindow.webContents.send("consoleMessage", {firstMessage: "Error: ", spanClass: "error", secondMessage: err.message})
+			mainWindow.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": err.message})
 			return
 		} else {
 			if (actionType == "pigfile-extract-all") {
 				let DescentParser = require("./parsers/descent")
 				DescentParser.extractPig(mainWindow, data, directoryPath)
 			} else {
-				mainWindow.webContents.send("consoleMessage", {firstMessage: "Error: ", spanClass: "error", secondMessage: "Unknown action type!"})
+				mainWindow.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Unknown action type!"})
 				return
 			}
 		}

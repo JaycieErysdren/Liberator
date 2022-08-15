@@ -62,9 +62,9 @@ module.exports = {
 
 			fs.writeFile(outputDirectory + "/" + i.toString() + " - " + bitmap.name, dataToWrite, (err) => {
 				if (err) {
-					window.webContents.send("consoleMessage", {firstMessage: "Error: ", spanClass: "error", secondMessage: "Couldn't write file."})
+					window.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Couldn't write file."})
 				} else {
-					window.webContents.send("consoleMessage", {firstMessage: "Successfully wrote file to disk.", spanClass: "good", secondMessage: ""})
+					window.webContents.send("consoleMessage", {"firstMessage": "Successfully wrote file to disk.", "spanClass": "good", "secondMessage": ""})
 				}
 			})
 		}
