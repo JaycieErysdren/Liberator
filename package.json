@@ -2,7 +2,7 @@
   "name": "liberator",
   "version": "0.0.1",
   "description": "Obscure file format viewer.",
-  "main": "main.js",
+  "main": "js/main.js",
   "scripts": {
     "start": "electron ."
   },
@@ -20,7 +20,6 @@
     "electron": "^20.0.2"
   },
   "dependencies": {
-    "kaitai-struct": "^0.10.0",
-    "three": "^0.143.0"
+    "kaitai-struct": "^0.10.0"
   }
 }
