@@ -3,6 +3,12 @@
 //
 
 //
+// imports
+//
+
+import * as threeWrapper from "./threewrapper.js"
+
+//
 // global vars
 //
 
@@ -57,19 +63,6 @@ window.electronAPI.consoleMessage((event, value) => {
 	consoleMessage(firstMessage, spanClass, secondMessage)
 })
 
-window.electronAPI.startJSTree((event, data) => {
-	$("#file-structure-tree").jstree("destroy").empty()
-	$("#file-structure-tree").jstree({
-		"plugins": ["sort"],
-		"core": {
-			"themes": {
-				"name": "default-dark"
-			},
-			"data": data
-		}
-	})
-})
-
 function consoleMessage(firstMessage, spanClass = "", secondMessage = "") {
 	let console = document.getElementById("console")
 	let container = document.getElementById("console-container")
@@ -103,6 +96,23 @@ function hideMessage() {
 		messageDIVs[i].style.display = "none"
 	}
 }
+
+//
+// file structure tree
+//
+
+window.electronAPI.startJSTree((event, data) => {
+	$("#file-structure-tree").jstree("destroy").empty()
+	$("#file-structure-tree").jstree({
+		"plugins": ["sort"],
+		"core": {
+			"themes": {
+				"name": "default-dark"
+			},
+			"data": data
+		}
+	})
+})
 
 //
 // file information window
@@ -158,6 +168,14 @@ function addActionButton(buttonText, buttonFunction) {
 
 	container.appendChild(button)
 }
+
+//
+// viewer window
+//
+
+window.electronAPI.buildThreeScene((event, data) => {
+	threeWrapper.buildThreeScene(data)
+})
 
 //
 // generic functions

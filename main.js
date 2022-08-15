@@ -99,7 +99,7 @@ async function handleFileOpen() {
 			{ name: "idTech Engines", extensions: formats_idtech },
 			{ name: "Descent Engine", extensions: formats_descent },
 		],
-		defaultPath: "/home/jaycie/Projects/Liberator/meta/test_files" //REMOVEME
+		defaultPath: "/home/jaycie/Projects/Liberator/local/test_files" //REMOVEME
 	})
 	if (canceled) {
 		return
@@ -112,7 +112,7 @@ async function handleFileOpen() {
 async function handleDirectoryOpen(event, fileInfo) {
 	const { canceled, filePaths } = await dialog.showOpenDialog({
 		properties: ["openDirectory"],
-		defaultPath: "/home/jaycie/Projects/Liberator/meta/test_files" //REMOVEME
+		defaultPath: "/home/jaycie/Projects/Liberator/local/test_files" //REMOVEME
 	})
 	if (canceled) {
 		return
@@ -145,12 +145,15 @@ function loadFile(filePath) {
 			if (formats_3dmm.includes(fileExt)) {
 				fileType = "Microsoft 3D Movie Maker Chunkfile"
 			} else if (formats_slavedriver.includes(fileExt)) {
+				let SlaveDriverParser = require("./dist/js/parsers/slavedriver")
 				if (fileExtLower == "lev") {
 					fileType = "SlaveDriver Level"
+					SlaveDriverParser.parseLev(mainWindow, data, fileName)
 				} else if (fileExtLower == "pcs") {
 					fileType = "SlaveDriver Bitmap Collection"
-				} else if (fileExtLower == "pix") {
+				} else if (fileExtLower == "pic") {
 					fileType = "SlaveDriver Bitmap"
+					SlaveDriverParser.parsePic(mainWindow, data, fileName)
 				}
 			} else if (formats_brender.includes(fileExt)) {
 				fileType = "BRender Datafile"

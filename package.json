@@ -20,6 +20,7 @@
     "electron": "^20.0.2"
   },
   "dependencies": {
-    "kaitai-struct": "^0.10.0"
+    "kaitai-struct": "^0.10.0",
+    "three": "^0.143.0"
   }
 }
