@@ -5,6 +5,6 @@
 /node_modules/
 
 # example files
-**/test_files/
+/local/
 
 **/__pycache/
