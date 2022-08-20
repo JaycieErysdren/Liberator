@@ -10,7 +10,7 @@ function buildThreeScene(data) {
 
 	let object_array = data["objects"]
 	let campos = data["camera_position"]
-	let camdist = data["camera_draw_distance"]
+	let camdist = data["camera_move_distance"]
 
 	init()
 	render()
@@ -22,18 +22,91 @@ function buildThreeScene(data) {
 
 		object_array.forEach(function(item) {
 			if (item["type"] == "threeSprite") {
-				let spriteMap = new THREE.DataTexture(item["pixel_data"], item["width"], item["height"]);
-				spriteMap.needsUpdate = true;
-				spriteMap.minFilter = THREE.NearestFilter	
-		
-				let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
-				let spriteObject = new THREE.Sprite(spriteMaterial);
+				let spriteMap = new THREE.DataTexture(item["pixel_data"], item["width"], item["height"])
+				spriteMap.minFilter = THREE.NearestFilter
+				spriteMap.minFilter = THREE.NearestFilter
+				spriteMap.needsUpdate = true
+
+				let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap})
+				let spriteObject = new THREE.Sprite(spriteMaterial)
 				spriteObject.scale.set(item["width"], item["height"], 1)
 				spriteObject.position.x = item["position"][0]
 				spriteObject.position.y = item["position"][1]
 				spriteObject.position.z = item["position"][2]
 
 				scene.add(spriteObject)
+			} else if (item["type"] == "threeMesh") {
+				console.log(item)
+				let threeGeometry = new THREE.BufferGeometry()
+				threeGeometry.setAttribute("position", new THREE.BufferAttribute(item["vertices"], 3))
+
+				if (item["uvs"]) {
+					threeGeometry.setAttribute("uv", new THREE.Float32BufferAttribute(item["uvs"], 2))
+				}
+
+				if (item["groups"]) {
+					for (let i = 0; i < item["groups"].length; i++) {
+						let threeGroup = item["groups"][i]
+						threeGeometry.addGroup(threeGroup["start"], threeGroup["count"], threeGroup["material_index"])
+					}
+				}
+
+				if (item["colors"]) {
+					threeGeometry.setAttribute("color", new THREE.Float32BufferAttribute(item["colors"], 3))
+				}
+
+				let finalMaterials
+
+				if (item["materials"]) {
+					let threeMaterials = []
+
+					for (let i = 0; i < item["materials"].length; i++) {
+						let inMaterial = item["materials"][i]
+						let inWidth = inMaterial["width"]
+						let inHeight = inMaterial["height"]
+						let inPixelData = inMaterial["pixel_data"]
+						let inVertexShader = inMaterial["vertex_shader"]
+						let inFragmentShader = inMaterial["fragment_shader"]
+
+						let outTexture = new THREE.DataTexture(inPixelData, inWidth, inHeight)
+						outTexture.minFilter = THREE.NearestFilter
+						outTexture.magFilter = THREE.NearestFilter
+						outTexture.needsUpdate = true
+
+						let shaderUniforms = {
+							diffuse: { type: "t", value: outTexture }
+						}
+
+						let outMaterial = new THREE.ShaderMaterial({
+							uniforms: shaderUniforms,
+							vertexShader: inVertexShader,
+							fragmentShader: inFragmentShader
+						})
+
+						threeMaterials.push(outMaterial)
+					}
+
+					finalMaterials = threeMaterials
+					console.log(finalMaterials)
+				} else {
+					finalMaterials = new THREE.MeshBasicMaterial()
+				}
+
+				let threeMesh = new THREE.Mesh(threeGeometry, finalMaterials)
+				threeMesh.updateMatrix()
+
+				let threeGroup = new THREE.Group()
+				threeGroup.add(threeMesh)
+
+				if (item["scale"]) {
+					threeGroup.scale.copy(new THREE.Vector3(item["scale"][0], item["scale"][1], item["scale"][2]))
+				} else {
+					threeGroup.scale.copy(new THREE.Vector3(1, 1, 1))
+				}
+
+				new THREE.Box3().setFromObject( threeGroup ).getCenter( threeGroup.position ).multiplyScalar( - 1 )
+
+				scene.add(threeGroup)
 			}
 		})
 
@@ -58,10 +131,10 @@ function buildThreeScene(data) {
 	}
 
 	function resizeCanvasToDisplaySize() {
-		const canvas = document.getElementById("viewer")
-		const width = canvas.clientWidth
-		const height = canvas.clientHeight
-	  
+		let canvas = document.getElementById("viewer")
+		let width = canvas.clientWidth
+		let height = canvas.clientHeight
+
 		if (canvas.width !== width || canvas.height !== height) {
 			renderer.setSize(width, height)
 			camera.aspect = width / height

@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "dist_server"
+		},
+		{
+			"path": "meta/kaitaistruct_src"
 		}
 	],
 	"settings": {}

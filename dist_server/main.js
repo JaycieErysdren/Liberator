@@ -151,7 +151,7 @@ function loadFile(filePath) {
 				let SlaveDriverParser = require("./parsers/slavedriver")
 				if (fileExtLower == "lev") {
 					fileType = "SlaveDriver Level"
-					mainWindow.webContents.send("consoleMessage", {"firstMessage": "Warning: ", "spanClass": "warning", "secondMessage": warning_unsupported})
+					SlaveDriverParser.parseLev(mainWindow, data, fileName)
 				} else if (fileExtLower == "pcs") {
 					fileType = "SlaveDriver Bitmap Collection"
 					mainWindow.webContents.send("consoleMessage", {"firstMessage": "Warning: ", "spanClass": "warning", "secondMessage": warning_unsupported})
