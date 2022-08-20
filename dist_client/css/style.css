@@ -163,12 +163,12 @@ html {
 }
 
 .liberator-message-container {
-	width: 30vw;
-	height: 50vh;
+	width: 40vw;
+	height: 60vh;
 	background-color: #171717;
 	border: 1px solid #515151;
-	top: 25vh;
-	left: 35vw;
+	top: 15vh;
+	left: 25vw;
 	position: absolute;
 }
 
@@ -184,15 +184,18 @@ html {
 .liberator-message {
 	width: 100%;
 	height: 100%;
-	margin: 8pt;
 }
 
 .liberator-message p {
 	padding: 1vh 0 1vh 0;
 }
 
+.liberator-message ul {
+	padding-left: 2vh;
+}
+
 .liberator-message h2 {
-	padding-bottom: 2vh;
+	padding-bottom: 1vh;
 }
 
 .liberator-action-button {
@@ -208,6 +211,36 @@ html {
 	background-color: #232323;
 }
 
+.liberator-tab-bar {
+	border-bottom: 1px solid #515151;
+	padding-top: 8pt;
+}
+
+.liberator-tab-button {
+	cursor: pointer;
+	border-left: 1px solid #515151;
+	border-right: 1px solid #515151;
+	border-top: 1px solid #515151;
+	border-radius: 1vh 1vh 0 0;
+	background-color: #171717;
+	transition: background-color 0.1s;
+	display: inline-block;
+	padding: 4pt;
+}
+
+.liberator-tab-button:first-child {
+	margin-left: 8pt;
+}
+
+.liberator-tab-button:hover {
+	background-color: #232323;
+}
+
+.liberator-tab-content {
+	padding: 2vh;
+	display: none;
+}
+
 .menu-bar-item {
 	width: 100%;
 	cursor: pointer;
@@ -219,13 +252,27 @@ html {
 }
 
 .warning {
-	color: #ff7700
+	color: #ff7700;
 }
 
 .good {
-	color: #00ff00
+	color: #00ff00;
 }
 
 .blue {
-	color: #6199ff
+	color: #6199ff;
+}
+
+/*=================*/ 
+/*
+/* html tags 
+/*
+/*=================*/
+
+hr {
+	display: block;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+	border-style: inset;
+	border-width: 1px;
 }

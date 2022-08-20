@@ -32,6 +32,21 @@ function initWindow() {
 		hideMessage()
 	})
 
+	let aboutWindow = document.getElementById("about-tabs")
+	let aboutWindowTabButtons = aboutWindow.getElementsByClassName("liberator-tab-button")
+
+	for (let i = 0; i < aboutWindowTabButtons.length; i++) {
+		let tabButton = aboutWindowTabButtons[i]
+		let tabButtonID = aboutWindowTabButtons[i].id
+		let tabID = tabButton.dataset.tab
+
+		tabButton.addEventListener("click", async() => {
+			switchTab(aboutWindow, tabID, tabButtonID)
+		})
+	}
+
+	switchTab(aboutWindow, "about-information", "about-button-information")
+
 	openFileButton.addEventListener("click", async() => {
 		filePath = await window.electronAPI.openFile()
 
@@ -43,12 +58,37 @@ function initWindow() {
 			consoleMessage("User selected file: ", "good", filePath)
 		}
 	})
+
 	quitButton.addEventListener("click", () => {
 		window.electronAPI.closeApp()
 	})
+
 	aboutButton.addEventListener("click", () => {
 		showMessage("message-about")
 	})
+}
+
+//
+// tabs
+//
+
+function switchTab(parent, tabID, tabButtonID) {
+	let allTabs = parent.getElementsByClassName("liberator-tab-content")
+	let allTabButtons = parent.getElementsByClassName("liberator-tab-bar")[0].getElementsByClassName("liberator-tab-button")
+	let thisTab = document.getElementById(tabID)
+	let thisTabButton = document.getElementById(tabButtonID)
+
+	for (let i = 0; i < allTabButtons.length; i++) {
+		allTabButtons[i].style.backgroundColor = "#171717"
+	}
+
+	thisTabButton.style.backgroundColor = "#232323"
+
+	for (let i = 0; i < allTabs.length; i++) {
+		allTabs[i].style.display = "none"
+	}
+
+	thisTab.style.display = "block"
 }
 
 //
