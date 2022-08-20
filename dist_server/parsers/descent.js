@@ -61,11 +61,13 @@ module.exports = {
 				dataToWrite = Uint8Array.from(bitmap.getLinearData)
 			}
 
-			fs.writeFile(outputDirectory + "/" + i.toString() + " - " + bitmap.name, dataToWrite, (err) => {
+			let outFileName = i.toString() + " - " + bitmap.name
+
+			fs.writeFile(outputDirectory + "/" + outFileName, dataToWrite, (err) => {
 				if (err) {
-					window.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Couldn't write file."})
+					window.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Couldn't write file. Error text: " + err})
 				} else {
-					window.webContents.send("consoleMessage", {"firstMessage": "Successfully wrote file to disk.", "spanClass": "good", "secondMessage": ""})
+					window.webContents.send("consoleMessage", {"firstMessage": "Successfully wrote " + outFileName + " to disk.", "spanClass": "good", "secondMessage": ""})
 				}
 			})
 		}

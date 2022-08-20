@@ -477,12 +477,14 @@ module.exports = {
 							image.bitmap.data[stride + 3] = Math.round(outPalette[levTextureBitmap[i]][3])
 						}
 
-						outImage.write(outputDirectory + "/" + fileName + ".texture" + t.toString().padStart(3, "0") + ".png")
+						let outFileName = fileName + ".texture" + t.toString().padStart(3, "0") + ".png"
+
+						outImage.write(outputDirectory + "/" + outFileName)
 
 						if (err) {
-							window.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Couldn't write file."})
+							window.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Couldn't write file. Error text: " + err})
 						} else {
-							window.webContents.send("consoleMessage", {"firstMessage": "Successfully wrote file to disk.", "spanClass": "good", "secondMessage": ""})
+							window.webContents.send("consoleMessage", {"firstMessage": "Successfully wrote " + outFileName + " to disk.", "spanClass": "good", "secondMessage": ""})
 						}
 					})
 				}
