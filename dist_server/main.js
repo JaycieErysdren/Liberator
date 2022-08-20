@@ -207,12 +207,17 @@ function extractToDirectory(directoryPath, filePath, actionType) {
 			mainWindow.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": err.message})
 			return
 		} else {
+			let fileName = filePath.split('\\').pop().split('/').pop()
+
 			if (actionType == "pigfile-extract-all") {
 				let DescentParser = require("./parsers/descent")
 				DescentParser.extractPig(mainWindow, data, directoryPath)
 			} else if (actionType == "levquake-extract-textures") {
 					let SlaveDriverParser = require("./parsers/slavedriver")
-					SlaveDriverParser.extractLev(mainWindow, data, directoryPath, false, true, false, "Quake")
+					SlaveDriverParser.extractLev(mainWindow, data, fileName, directoryPath, false, true, false, "Quake")
+			} else if (actionType == "levduke-extract-textures") {
+				let SlaveDriverParser = require("./parsers/slavedriver")
+				SlaveDriverParser.extractLev(mainWindow, data, fileName, directoryPath, false, true, false, "Duke3D")
 			} else {
 				mainWindow.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Unknown action type!"})
 				return

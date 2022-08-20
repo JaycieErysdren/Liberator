@@ -2,6 +2,8 @@ let KaitaiStream = require("kaitai-struct/KaitaiStream")
 let fileTree = require("../modules/filetree")
 let liberatorUtils = require("../modules/liberatorutils")
 let fs = require("fs")
+let jimp = require("jimp")
+const Jimp = require("jimp")
 
 module.exports = {
 	parsePic: function(window, data, fileName) {
@@ -16,9 +18,9 @@ module.exports = {
 
 		let width = picFile.width
 		let height = picFile.height
-	
+
 		let size = width * height
-		let pixelData = new Uint8Array(4 * size)	
+		let pixelData = new Uint8Array(4 * size)
 
 		let outPalette = []
 
@@ -39,12 +41,12 @@ module.exports = {
 			for (let x = 0; x < width; x++) {
 				let stride = i * 4
 				let pos = ((height - y - 1) * width) + x
-	
+
 				pixelData[stride] = outPalette[picData[pos]][0]
 				pixelData[stride + 1] = outPalette[picData[pos]][1]
 				pixelData[stride + 2] = outPalette[picData[pos]][2]
 				pixelData[stride + 3] = outPalette[picData[pos]][3]
-	
+
 				i += 1
 			}
 		}
@@ -133,37 +135,37 @@ module.exports = {
 		function convert_vertex_color(lookup) {
 			let color_out = []
 			let color_in = levColors[lookup]
-	
+
 			color_out.push((31 + color_in[0]) / 31)
 			color_out.push((31 + color_in[1]) / 31)
 			color_out.push((31 + color_in[2]) / 31)
-	
+
 			return color_out
 		}
-	
+
 		function add_vertex(arrayCoords, coords) {
 			arrayCoords.push(coords[0])
 			arrayCoords.push(coords[1])
 			arrayCoords.push(coords[2])
 		}
-	
+
 		function add_polygroup(x, y, z, index, tri_num) {
 			add_vertex(threePolyGroups[index], x.coords)
 			add_vertex(threePolyGroups[index], y.coords)
 			add_vertex(threePolyGroups[index], z.coords)
-	
+
 			threePolyGroupColors[index].push(x.color[0])
 			threePolyGroupColors[index].push(x.color[1])
 			threePolyGroupColors[index].push(x.color[2])
-	
+
 			threePolyGroupColors[index].push(y.color[0])
 			threePolyGroupColors[index].push(y.color[1])
 			threePolyGroupColors[index].push(y.color[2])
-	
+
 			threePolyGroupColors[index].push(z.color[0])
 			threePolyGroupColors[index].push(z.color[1])
 			threePolyGroupColors[index].push(z.color[2])
-	
+
 			if (tri_num == 0) {
 				// vertex 1
 				threePolyGroupUVs[index].push(0)
@@ -187,7 +189,7 @@ module.exports = {
 				threePolyGroupUVs[index].push(1)
 			}
 		}
-	
+
 		function convert_int16_16_vector(vector) {
 			return [Math.round(vector[0] / 65536.0), Math.round(vector[1] / 65536.0), Math.round(vector[2] / 65536.0)]
 		}
@@ -399,16 +401,24 @@ module.exports = {
 			["Other Resources: ", numOtherResources.toString()]
 		]
 
+		let actionButtonPrefix
+
+		if (levFormat == FORMAT_LEV_QUAKE) {
+			actionButtonPrefix = "levquake"
+		} else if (levFormat == FORMAT_LEV_DUKE3D) {
+			actionButtonPrefix = "levduke"
+		}
+
 		window.webContents.send("clearHTMLbyID", "actions")
-		window.webContents.send("addActionButton", {"buttonText": "Extract All Assets", "buttonFunction": "levquake-extract-all"})
-		window.webContents.send("addActionButton", {"buttonText": "Extract Sky Textures", "buttonFunction": "levquake-extract-sky-textures"})
-		window.webContents.send("addActionButton", {"buttonText": "Extract Textures", "buttonFunction": "levquake-extract-textures"})
-		window.webContents.send("addActionButton", {"buttonText": "Extract Sounds", "buttonFunction": "levquake-extract-sounds"})
+		window.webContents.send("addActionButton", {"buttonText": "Extract All Assets", "buttonFunction": actionButtonPrefix + "-extract-all"})
+		window.webContents.send("addActionButton", {"buttonText": "Extract Sky Textures", "buttonFunction": actionButtonPrefix + "-extract-sky-textures"})
+		window.webContents.send("addActionButton", {"buttonText": "Extract Textures", "buttonFunction": actionButtonPrefix + "-extract-textures"})
+		window.webContents.send("addActionButton", {"buttonText": "Extract Sounds", "buttonFunction": actionButtonPrefix + "-extract-sounds"})
 
 		window.webContents.send("fileInfoSet", fileInfo)
 		window.webContents.send("startJSTree", jsonData)
 	},
-	extractLev: function(window, data, outputDirectory, bExtractSkyTextures, bExtractTextures, bExtractSounds, format) {
+	extractLev: function(window, data, fileName, outputDirectory, bExtractSkyTextures, bExtractTextures, bExtractSounds, format) {
 		let levFile
 
 		if (format == "Quake") {
@@ -429,36 +439,54 @@ module.exports = {
 		if (bExtractTextures) {
 			let numTextures = 0
 
-			for (let i = 0; i < levFile.resources.numResources; i++) {
-				let levResource = levFile.resources.resources[i]
-	
+			for (let t = 0; t < levFile.resources.numResources; t++) {
+				let levResource = levFile.resources.resources[t]
+
 				if (levResource.resourceType == 130) {
 					numTextures++
-					window.webContents.send("consoleMessage", {"firstMessage": "Successfully wrote file to disk", "spanClass": "good", "secondMessage": ""})
+
+					let levTexture = levResource.data
+					let levTexturePalette = levTexture.palette
+					let levTextureBitmap = levTexture.bitmap
+
+					let width = 64
+					let height = 64
+	
+					let size = width * height
+					let pixelData = new Uint8Array(4 * size)
+	
+					let outPalette = []
+	
+					// compute palette
+					for (let i = 0; i < 16; i++) {
+						outPalette.push([
+							(levTexturePalette[i].r / 31) * 255,
+							(levTexturePalette[i].g / 31) * 255,
+							(levTexturePalette[i].b / 31) * 255,
+							levTexturePalette[i].a * 255
+						])
+					}
+
+					let outImage = new Jimp(width, height, function (err, image) {
+						for (let i = 0; i < size; i++) {
+							let stride = i * 4
+
+							image.bitmap.data[stride] = Math.round(outPalette[levTextureBitmap[i]][0])
+							image.bitmap.data[stride + 1] = Math.round(outPalette[levTextureBitmap[i]][1])
+							image.bitmap.data[stride + 2] = Math.round(outPalette[levTextureBitmap[i]][2])
+							image.bitmap.data[stride + 3] = Math.round(outPalette[levTextureBitmap[i]][3])
+						}
+
+						outImage.write(outputDirectory + "/" + fileName + ".texture" + t.toString().padStart(3, "0") + ".png")
+
+						if (err) {
+							window.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Couldn't write file."})
+						} else {
+							window.webContents.send("consoleMessage", {"firstMessage": "Successfully wrote file to disk.", "spanClass": "good", "secondMessage": ""})
+						}
+					})
 				}
 			}
-		}
-
-		return
-
-		for (let i = 0; i < pigFile.bitmaps.length; i++) {
-			let bitmap = pigFile.bitmaps[i]
-
-			let dataToWrite
-
-			if (bitmap.flags & 8) {
-				dataToWrite = Uint8Array.from(bitmap.getRleData.pixels)
-			} else {
-				dataToWrite = Uint8Array.from(bitmap.getLinearData)
-			}
-
-			fs.writeFile(outputDirectory + "/" + i.toString() + " - " + bitmap.name, dataToWrite, (err) => {
-				if (err) {
-					window.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Couldn't write file."})
-				} else {
-					window.webContents.send("consoleMessage", {"firstMessage": "Successfully wrote file to disk.", "spanClass": "good", "secondMessage": ""})
-				}
-			})
 		}
 	}
 }
