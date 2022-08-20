@@ -1,5 +1,6 @@
 let KaitaiStream = require("kaitai-struct/KaitaiStream")
 let fileTree = require("../modules/filetree")
+let liberatorUtils = require("../modules/liberatorutils")
 let fs = require("fs")
 
 module.exports = {
@@ -30,7 +31,7 @@ module.exports = {
 		let fileInfo = [
 			["File Name: ", fileName],
 			["File Type: ", "Descent Pigfile"],
-			["File Size: ", (data.length / 1000).toString() + " kilobytes"],
+			["File Size: ", liberatorUtils.fileSize(data.length)],
 			["", ""],
 			["Number of Bitmaps: ", pigFile.bitmaps.length.toString()],
 			["Number of Sounds: ", pigFile.sounds.length.toString()]
@@ -100,7 +101,7 @@ module.exports = {
 		let fileInfo = [
 			["File Name: ", fileName],
 			["File Type: ", "Descent Hogfile"],
-			["File Size: ", (data.length / 1000).toString() + " kilobytes"],
+			["File Size: ", liberatorUtils.fileSize(data.length)],
 			["", ""],
 			["Number of Files: ", hogFile.chunks.length.toString()]
 		]

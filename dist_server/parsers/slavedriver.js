@@ -1,5 +1,7 @@
 let KaitaiStream = require("kaitai-struct/KaitaiStream")
 let fileTree = require("../modules/filetree")
+let liberatorUtils = require("../modules/liberatorutils")
+let fs = require("fs")
 
 module.exports = {
 	parsePic: function(window, data, fileName) {
@@ -60,7 +62,7 @@ module.exports = {
 		let fileInfo = [
 			["File Name: ", fileName],
 			["File Type: ", "SlaveDriver Bitmap"],
-			["File Size: ", (data.length / 1000).toString() + " kilobytes"],
+			["File Size: ", liberatorUtils.fileSize(data.length)],
 			["", ""],
 			["Width: ", width.toString()],
 			["Height: ", height.toString()],
@@ -74,7 +76,28 @@ module.exports = {
 	},
 	parseLev: function(window, data, fileName) {
 		let LevQuake = require("../formats/SlavedriverLevQuake")
-		let levFile = new LevQuake(new KaitaiStream(data))
+		let LevDuke = require("../formats/SlavedriverLevDuke")
+
+		let FORMAT_LEV_POWERSLAVE = 0
+		let FORMAT_LEV_DUKE3D = 1
+		let FORMAT_LEV_QUAKE = 2
+
+		let levFormat
+		let levFile
+
+		// determine LEV format
+		try {
+			levFile = new LevQuake(new KaitaiStream(data))
+			levFormat = FORMAT_LEV_QUAKE
+		} catch (err) {
+			try {
+				levFile = new LevDuke(new KaitaiStream(data))
+				levFormat = FORMAT_LEV_DUKE3D
+			} catch (err) {
+				window.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Tried to load LEV file in both Duke3D and Quake formats, but failed."})
+				return
+			}
+		}
 
 		let jsonData = []
 		jsonData.push(fileTree.item("file", "#", fileName, "./images/silk/world.png", true))
@@ -179,17 +202,17 @@ module.exports = {
 				jsonData.push(fileTree.item("texture" + numTextures.toString(), "textures", "Texture " + numTextures.toString(), "./images/silk/picture.png", true))
 				numTextures++
 
-				const levTexture = levResource.data
-				const levTexturePalette = levTexture.palette
-				const levTextureBitmap = levTexture.bitmap
+				let levTexture = levResource.data
+				let levTexturePalette = levTexture.palette
+				let levTextureBitmap = levTexture.bitmap
 
-				const width = 64
-				const height = 64
+				let width = 64
+				let height = 64
 
-				const size = width * height
-				const pixelData = new Uint8Array(4 * size)
+				let size = width * height
+				let pixelData = new Uint8Array(4 * size)
 
-				var outPalette = []
+				let outPalette = []
 
 				// compute palette
 				for (let i = 0; i < 16; i++) {
@@ -203,7 +226,7 @@ module.exports = {
 
 				// compute texture
 				for (let i = 0; i < size; i++) {
-					const stride = i * 4
+					let stride = i * 4
 
 					pixelData[stride] = Math.round(outPalette[levTextureBitmap[i]][0])
 					pixelData[stride + 1] = Math.round(outPalette[levTextureBitmap[i]][1])
@@ -368,8 +391,8 @@ module.exports = {
 
 		let fileInfo = [
 			["File Name: ", fileName],
-			["File Type: ", "SlaveDriver Engine Level (Quake)"],
-			["File Size: ", (data.length / 1000).toString() + " kilobytes"],
+			["File Type: ", "SlaveDriver Engine Level"],
+			["File Size: ", liberatorUtils.fileSize(data.length)],
 			["", ""],
 			["Textures: ", numTextures.toString()],
 			["Sounds: ", levResources.numSounds.toString()],
@@ -384,5 +407,58 @@ module.exports = {
 
 		window.webContents.send("fileInfoSet", fileInfo)
 		window.webContents.send("startJSTree", jsonData)
+	},
+	extractLev: function(window, data, outputDirectory, bExtractSkyTextures, bExtractTextures, bExtractSounds, format) {
+		let levFile
+
+		if (format == "Quake") {
+			let LevQuake = require("../formats/SlavedriverLevQuake")
+			levFile = new LevQuake(new KaitaiStream(data))
+		} else if (format == "Duke3D") {
+			let LevDuke = require("../formats/SlavedriverLevDuke")
+			levFile = new LevDuke(new KaitaiStream(data))
+		} else {
+			window.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Invalid input format for LEV asset extractor."})
+			return
+		}
+
+		if (bExtractSkyTextures) {
+			window.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "I can't find the motivation to do this one right now."})
+		}
+
+		if (bExtractTextures) {
+			let numTextures = 0
+
+			for (let i = 0; i < levFile.resources.numResources; i++) {
+				let levResource = levFile.resources.resources[i]
+	
+				if (levResource.resourceType == 130) {
+					numTextures++
+					window.webContents.send("consoleMessage", {"firstMessage": "Successfully wrote file to disk", "spanClass": "good", "secondMessage": ""})
+				}
+			}
+		}
+
+		return
+
+		for (let i = 0; i < pigFile.bitmaps.length; i++) {
+			let bitmap = pigFile.bitmaps[i]
+
+			let dataToWrite
+
+			if (bitmap.flags & 8) {
+				dataToWrite = Uint8Array.from(bitmap.getRleData.pixels)
+			} else {
+				dataToWrite = Uint8Array.from(bitmap.getLinearData)
+			}
+
+			fs.writeFile(outputDirectory + "/" + i.toString() + " - " + bitmap.name, dataToWrite, (err) => {
+				if (err) {
+					window.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Couldn't write file."})
+				} else {
+					window.webContents.send("consoleMessage", {"firstMessage": "Successfully wrote file to disk.", "spanClass": "good", "secondMessage": ""})
+				}
+			})
+		}
 	}
 }

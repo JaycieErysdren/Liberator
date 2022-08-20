@@ -1,5 +1,7 @@
 let KaitaiStream = require("kaitai-struct/KaitaiStream")
 let fileTree = require("../modules/filetree")
+let liberatorUtils = require("../modules/liberatorutils")
+let fs = require("fs")
 
 module.exports = {
 	parsePak: function(window, data, fileName) {
@@ -53,7 +55,7 @@ module.exports = {
 		let fileInfo = [
 			["File Name: ", fileName],
 			["File Type: ", "idTech Packfile V1"],
-			["File Size: ", (data.length / 1000).toString() + " kilobytes"],
+			["File Size: ", liberatorUtils.fileSize(data.length)],
 			["", ""],
 			["Number of Files: ", pakFile.getFileTable.length.toString()]
 		]

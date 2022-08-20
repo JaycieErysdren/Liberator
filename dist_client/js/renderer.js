@@ -217,12 +217,16 @@ window.electronAPI.buildThreeScene((event, data) => {
 	threeWrapper.buildThreeScene(data)
 })
 
+window.electronAPI.clearThreeScene((event, data) => {
+	threeWrapper.clearThreeScene()
+})
+
 //
 // generic functions
 //
 
-window.electronAPI.clearHTMLbyID((event, value) => {
-	clearHTMLbyID(value)
+window.electronAPI.clearHTMLbyID((event, data) => {
+	clearHTMLbyID(data)
 })
 
 function clearHTMLbyID(item) {

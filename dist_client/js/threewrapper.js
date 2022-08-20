@@ -2,7 +2,15 @@ import * as THREE from "./dependencies/three.module.js"
 import { OrbitControls } from "./dependencies/OrbitControls.js"
 
 export {
-	buildThreeScene
+	buildThreeScene,
+	clearThreeScene
+}
+
+function clearThreeScene() {
+	let parent = document.getElementById("viewer")
+	while (parent.lastChild) {
+		parent.removeChild(parent.lastChild)
+	}
 }
 
 function buildThreeScene(data) {
@@ -36,7 +44,6 @@ function buildThreeScene(data) {
 
 				scene.add(spriteObject)
 			} else if (item["type"] == "threeMesh") {
-				console.log(item)
 				let threeGeometry = new THREE.BufferGeometry()
 				threeGeometry.setAttribute("position", new THREE.BufferAttribute(item["vertices"], 3))
 
@@ -87,7 +94,6 @@ function buildThreeScene(data) {
 					}
 
 					finalMaterials = threeMaterials
-					console.log(finalMaterials)
 				} else {
 					finalMaterials = new THREE.MeshBasicMaterial()
 				}
@@ -113,7 +119,7 @@ function buildThreeScene(data) {
 		scene.background = new THREE.Color(0x909090)
 
 		renderer = new THREE.WebGLRenderer({antialias: true})
-		removeChildren(document.getElementById("viewer"))
+		clearThreeScene()
 		document.getElementById("viewer").appendChild(renderer.domElement)
 		resizeCanvasToDisplaySize()
 
@@ -122,12 +128,6 @@ function buildThreeScene(data) {
 		controls.minDistance = camdist[0]
 		controls.maxDistance = camdist[1]
 		controls.maxPolarAngle = Math.PI / 2
-	}
-
-	function removeChildren(parent) {
-		while (parent.lastChild) {
-			parent.removeChild(parent.lastChild)
-		}
 	}
 
 	function resizeCanvasToDisplaySize() {

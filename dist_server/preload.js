@@ -12,7 +12,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
 	addActionButton: (callback) => ipcRenderer.on("addActionButton", callback),
 	clearHTMLbyID: (callback) => ipcRenderer.on("clearHTMLbyID", callback),
 	startJSTree: (callback) => ipcRenderer.on("startJSTree", callback),
-	buildThreeScene: (callback) => ipcRenderer.on("buildThreeScene", callback)
+	buildThreeScene: (callback) => ipcRenderer.on("buildThreeScene", callback),
+	clearThreeScene: (callback) => ipcRenderer.on("clearThreeScene", callback)
 })
 
 window.addEventListener("DOMContentLoaded", () => {

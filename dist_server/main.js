@@ -144,6 +144,8 @@ function loadFile(filePath) {
 			let fileType
 			let fileName = filePath.split('\\').pop().split('/').pop()
 
+			mainWindow.webContents.send("clearThreeScene", "viewer")
+
 			if (formats_3dmm.includes(fileExt)) {
 				fileType = "Microsoft 3D Movie Maker Chunkfile"
 				mainWindow.webContents.send("consoleMessage", {"firstMessage": "Warning: ", "spanClass": "warning", "secondMessage": warning_unsupported})
@@ -208,6 +210,9 @@ function extractToDirectory(directoryPath, filePath, actionType) {
 			if (actionType == "pigfile-extract-all") {
 				let DescentParser = require("./parsers/descent")
 				DescentParser.extractPig(mainWindow, data, directoryPath)
+			} else if (actionType == "levquake-extract-textures") {
+					let SlaveDriverParser = require("./parsers/slavedriver")
+					SlaveDriverParser.extractLev(mainWindow, data, directoryPath, false, true, false, "Quake")
 			} else {
 				mainWindow.webContents.send("consoleMessage", {"firstMessage": "Error: ", "spanClass": "error", "secondMessage": "Unknown action type!"})
 				return
