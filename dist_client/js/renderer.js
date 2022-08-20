@@ -56,9 +56,9 @@ function initWindow() {
 //
 
 window.electronAPI.consoleMessage((event, value) => {
-	firstMessage = value["firstMessage"]
-	spanClass = value["spanClass"]
-	secondMessage = value["secondMessage"]
+	let firstMessage = value["firstMessage"]
+	let spanClass = value["spanClass"]
+	let secondMessage = value["secondMessage"]
 
 	consoleMessage(firstMessage, spanClass, secondMessage)
 })
@@ -119,9 +119,9 @@ window.electronAPI.startJSTree((event, data) => {
 //
 
 window.electronAPI.fileInfoMessage((event, value) => {
-	firstMessage = value["firstMessage"]
-	spanClass = value["spanClass"]
-	secondMessage = value["secondMessage"]
+	let firstMessage = value["firstMessage"]
+	let spanClass = value["spanClass"]
+	let secondMessage = value["secondMessage"]
 
 	fileInfoMessage(firstMessage, spanClass, secondMessage)
 })
@@ -148,8 +148,8 @@ function fileInfoMessage(firstMessage, spanClass = "", secondMessage = "") {
 //
 
 window.electronAPI.addActionButton((event, value) => {
-	buttonText = value["buttonText"]
-	buttonFunction = value["buttonFunction"]
+	let buttonText = value["buttonText"]
+	let buttonFunction = value["buttonFunction"]
 
 	addActionButton(buttonText, buttonFunction)
 })

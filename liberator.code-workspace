@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "dist_client"
+		},
+		{
+			"path": "dist_server"
+		}
+	],
+	"settings": {}
+}
