@@ -5,6 +5,7 @@
   "main": "dist_server/main.js",
   "scripts": {
     "start": "electron-forge start",
+    "start-noforge": "electron .",
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
@@ -27,40 +28,27 @@
     "electron": "^20.0.3"
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0",
     "jimp": "^0.16.1",
     "kaitai-struct": "^0.10.0"
   },
   "config": {
     "forge": {
       "packagerConfig": {
-        "ignore": ["local/*", "meta/*"]
+        "name": "Liberator",
+        "executableName": "liberator",
+        "ignore": [
+          "local/*",
+          "meta/*",
+          "liberator.code-workspace",
+          "README.md",
+          "LICENSE",
+          ".gitignore",
+          ".gitattributes"
+        ]
       },
       "makers": [
         {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "Liberator"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {
-            "options": {
-              "maintainer": "Jaycie Erysdren",
-              "homepage": "https://erysdren.me/"
-            }
-          }
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
+          "name": "@electron-forge/maker-zip"
         }
       ]
     }
