@@ -84,6 +84,12 @@ html {
 	position: absolute;
 }
 
+#messages-input-catcher {
+	width: 100vw;
+	height: 100vh;
+	position: absolute;
+}
+
 #root {
 	display: grid;
 	grid-template-columns: 4vw 23vw 23vw 50vw;

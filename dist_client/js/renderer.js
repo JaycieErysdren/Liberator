@@ -27,6 +27,11 @@ function initWindow() {
 	let quitButton = document.getElementById("menu-bar-quit")
 	let aboutButton = document.getElementById("menu-bar-about")
 	let messageWindowCloseButton = document.getElementById("liberator-message-close-button")
+	let messageWindowRoot = document.getElementById("messages-input-catcher")
+
+	messageWindowRoot.addEventListener("click", () => {
+		hideMessage()
+	})
 
 	messageWindowCloseButton.addEventListener("click", () => {
 		hideMessage()
