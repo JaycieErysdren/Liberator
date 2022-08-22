@@ -211,7 +211,7 @@ function extractToDirectory(directoryPath, filePath, actionType) {
 
 			if (actionType == "pigfile-extract-all") {
 				let DescentParser = require("./parsers/descent")
-				DescentParser.extractPig(mainWindow, data, directoryPath)
+				DescentParser.extractPig(mainWindow, data, fileName, directoryPath)
 			} else if (actionType == "levquake-extract-textures") {
 					let SlaveDriverParser = require("./parsers/slavedriver")
 					SlaveDriverParser.extractLev(mainWindow, data, fileName, directoryPath, false, true, false, "Quake")

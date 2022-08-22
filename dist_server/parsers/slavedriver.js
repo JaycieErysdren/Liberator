@@ -2,8 +2,7 @@ let KaitaiStream = require("kaitai-struct/KaitaiStream")
 let fileTree = require("../modules/filetree")
 let liberatorUtils = require("../modules/liberatorutils")
 let fs = require("fs")
-let jimp = require("jimp")
-const Jimp = require("jimp")
+let Jimp = require("jimp")
 
 module.exports = {
 	parsePic: function(window, data, fileName) {

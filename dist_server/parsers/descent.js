@@ -2,6 +2,7 @@ let KaitaiStream = require("kaitai-struct/KaitaiStream")
 let fileTree = require("../modules/filetree")
 let liberatorUtils = require("../modules/liberatorutils")
 let fs = require("fs")
+let Jimp = require("jimp")
 
 module.exports = {
 	parsePig: function(window, data, fileName) {
@@ -46,7 +47,7 @@ module.exports = {
 		window.webContents.send("fileInfoSet", fileInfo)
 		window.webContents.send("startJSTree", jsonData)
 	},
-	extractPig: function(window, data, outputDirectory) {
+	extractPig: function(window, data, fileName, outputDirectory) {
 		let DescentPig = require("../formats/DescentPig")
 		let pigFile = new DescentPig(new KaitaiStream(data))
 
