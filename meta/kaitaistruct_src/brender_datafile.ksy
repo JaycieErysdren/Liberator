@@ -23,7 +23,7 @@ types:
         type:
           switch-on: type
           cases:
-            0: br_file_end_t # file ending
+            0: br_terminator_t # file ending
             3: br_pixelmap_t # pixelmap def
             18: br_file_index_t # file info
             22: br_material_index_t # material index
@@ -46,7 +46,7 @@ types:
       - id: data
         size: _parent.len_data
 
-  br_file_end_t: {}
+  br_terminator_t: {}
 
   br_file_index_t:
     seq:
@@ -57,7 +57,7 @@ types:
 
   rgb_t:
     seq:
-      - id: none
+      - id: a
         type: u1
       - id: r
         type: u1
@@ -83,9 +83,6 @@ types:
       - id: identifier
         type: strz
         encoding: ascii
-      - id: palette
-        type: br_datafile_chunk_t
-        if: bitmap_type == 3
       - id: pixel_data
         type: br_datafile_chunk_t
 
@@ -105,8 +102,6 @@ types:
         repeat: expr
         repeat-expr: (len_pixel * num_pixels) / 4
         if: len_pixel == 4
-      - id: padding_bottom
-        size: 8
 
   br_model_t:
     seq:
@@ -139,6 +134,8 @@ types:
   br_face_material_index_t:
     seq:
       - id: num_face_materials
+        type: u4
+      - id: len_face_material
         type: u4
       - id: face_materials
         type: u2
