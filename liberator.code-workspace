@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "dist_client"
+		},
+		{
+			"path": "dist_server"
+		},
+		{
+			"path": "meta/kaitaistruct_src"
+		}
+	],
+	"settings": {}
+}

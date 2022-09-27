@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang=en>
+	<head>
+		<title>Liberator</title>
+		<meta charset=utf-8>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; worker-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline';">
+		<link rel="stylesheet" href="css/style.css">
+		<!-- jstree -->
+		<link rel="stylesheet" href="css/jstree/style.css">
+		<script type="application/javascript" src="js/dependencies/jquery-3.6.0.min.js"></script>
+		<script type="application/javascript" src="js/dependencies/jstree.js"></script>
+	</head>
+	<body>
+		<div id="messages-root" style="display: none">
+			<div id="messages-input-catcher"></div>
+			<div class="liberator-message-container">
+				<div id="liberator-message-close-button">&times;</div>
+				<div id="message-lev-whatgame" class="liberator-message" style="display: none">
+					<h2>Select Type</h2>
+				</div>
+				<div id="message-about" class="liberator-message">
+					<div id="about-tabs">
+						<div id="about-tab-bar" class="liberator-tab-bar">
+							<div data-tab="about-information" id="about-button-information" class="liberator-tab-button">Information</div>
+							<div data-tab="about-credits" id="about-button-credits" class="liberator-tab-button">Credits</div>
+							<div data-tab="about-dependencies" id="about-button-dependencies" class="liberator-tab-button">Dependencies</div>
+						</div>
+						<div id="about-credits" class="liberator-tab-content">
+							<p><b>Chief Maintainer:</b> Jaycie Ewald</p>
+							<p><b>Additional Help:</b></p>
+							<ul>
+								<li>Paril</li>
+								<li>ReyeMe</li>
+								<li>Rich Whitehouse</li>
+								<li>Spike</li>
+								<li>TheEnbyWitch</li>
+								<li>vfig</li>
+							</ul>
+						</div>
+						<div id="about-information" class="liberator-tab-content">
+							<p><b>Version Number:</b> 0.1.1-alpha</p>
+							<p><b>Version Date:</b> 2022-08-20</p>
+							<p><b>Liberator</b> is an Electron app utilizing KaitaiStruct, three.js, jsTree and jQuery. It can load, view, convert and extract data from various obscure binary file formats.</p>
+							<p>Files from the following engines are supported:</p>
+							<ul>
+								<li>BRender</li>
+								<li>Descent</li>
+								<li>idTech 1</li>
+								<li>Microsoft 3D Movie Maker</li>
+								<li>SlaveDriver</li>
+								<li>Tank Engine</li>
+							</ul>
+						</div>
+						<div id="about-dependencies" class="liberator-tab-content">
+							<p><b>Project Dependencies:</b></p>
+							<ul>
+								<li><b>Node.js:</b> <span id="node-version"></span></li>
+								<li><b>Chromium:</b> <span id="chrome-version"></span></li>
+								<li><b>Electron:</b> <span id="electron-version"></span></li>
+								<li><b>KaitaiStruct:</b> <span id="kaitaistruct-version">0.10.0</span></li>
+								<li><b>three.js:</b> <span id="three-version">0.143.0</span></li>
+								<li><b>jsTree:</b> <span id="jstree-version">3.3.12</span></li>
+								<li><b>jQuery:</b> <span id="jquery-version">3.6.0</span></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="root">
+			<div id="menu-bar">
+				<img src="images/silk/folder_go.png" title="Open..." data-func="open" id="menu-bar-open-file" class="menu-bar-item"></img>
+				<!--<img src="images/silk/page_add.png" title="Save As..." data-func="save" class="menu-bar-item"></img>-->
+				<img src="images/silk/wrench.png" title="Preferences" data-func="preferences" class="menu-bar-item"></img>
+				<img src="images/silk/information.png" title="About" data-func="about" id="menu-bar-about" class="menu-bar-item"></img>
+				<img src="images/silk/door_out.png" title="Quit" data-func="quit" id="menu-bar-quit" class="menu-bar-item"></img>
+			</div>
+			<div id="file-structure-tree" class="liberator-frame"></div>
+			<div id="actions-container" class="liberator-frame"><div id="actions"></div></div>
+			<div id="file-info-container" class="liberator-frame"><div id="file-info"></div></div>
+			<div id="viewer" class="liberator-frame"></div>
+			<div id="console-container" class="liberator-frame"><div id="console"></div></div>
+		</div>
+		<script type="module" src="js/renderer.js"></script>
+	</body>
+</html>

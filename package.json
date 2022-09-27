@@ -1,12 +1,56 @@
 {
   "name": "liberator",
+  "version": "0.1.1",
+  "description": "Obscure file format viewer.",
+  "main": "dist_server/main.js",
   "scripts": {
-    "tauri": "tauri"
+    "start": "electron .",
+    "start-forge": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JaycieErysdren/Liberator.git"
+  },
+  "author": "Jaycie Erysdren",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JaycieErysdren/Liberator/issues"
+  },
+  "homepage": "https://github.com/JaycieErysdren/Liberator#readme",
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.65",
+    "@electron-forge/maker-deb": "^6.0.0-beta.65",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.65",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.65",
+    "@electron-forge/maker-zip": "^6.0.0-beta.65",
+    "electron": "^20.0.3"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.0.2"
+    "jimp": "^0.16.1",
+    "kaitai-struct": "^0.10.0"
   },
-  "devDependencies": {
-    "@tauri-apps/cli": "^1.0.5"
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "name": "Liberator",
+        "executableName": "liberator",
+        "ignore": [
+          "local/*",
+          "meta/*",
+          "liberator.code-workspace",
+          "README.md",
+          "LICENSE",
+          ".gitignore",
+          ".gitattributes"
+        ]
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-zip"
+        }
+      ]
+    }
   }
 }
