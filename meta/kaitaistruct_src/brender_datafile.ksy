@@ -32,8 +32,10 @@ types:
             26: br_face_material_index_t # face material assignments
             33: br_pixels_t # raw pixels
             35: br_actor_t # actor def
+            36: br_actor_model_t # actor model def
             53: br_face_index_t # faces
             54: br_model_t # model def
+            61: br_pixelmap_new_t # new pixelmap def
             _: br_unknown_t
 
   br_unknown_t:
@@ -43,8 +45,19 @@ types:
 
   br_actor_t:
     seq:
-      - id: data
-        size: _parent.len_data
+      - id: actor_type
+        type: u1
+      - id: render_style
+        type: u1
+      - id: identifier
+        type: strz
+        encoding: ascii
+
+  br_actor_model_t:
+    seq:
+      - id: identifier
+        type: strz
+        encoding: ascii
 
   br_terminator_t: {}
 
@@ -83,8 +96,26 @@ types:
       - id: identifier
         type: strz
         encoding: ascii
-      - id: pixel_data
-        type: br_datafile_chunk_t
+
+  br_pixelmap_new_t:
+    seq:
+      - id: bitmap_type
+        type: b8
+      - id: row_bytes
+        type: u2
+      - id: width
+        type: u2
+      - id: height
+        type: u2
+      - id: origin_x
+        type: u2
+      - id: origin_y
+        type: u2
+      - id: mip_offset
+        type: u2
+      - id: identifier
+        type: strz
+        encoding: ascii
 
   br_pixels_t:
     seq:
@@ -97,6 +128,11 @@ types:
         repeat: expr
         repeat-expr: len_pixel * num_pixels
         if: len_pixel == 1
+      - id: data_depth
+        type: u2
+        repeat: expr
+        repeat-expr: (len_pixel * num_pixels) / 2
+        if: len_pixel == 2
       - id: data_rgb
         type: rgb_t
         repeat: expr
