@@ -213,8 +213,8 @@ function extractToDirectory(directoryPath, filePath, actionType) {
 				let DescentParser = require("./parsers/descent")
 				DescentParser.extractPig(mainWindow, data, fileName, directoryPath)
 			} else if (actionType == "levquake-extract-textures") {
-					let SlaveDriverParser = require("./parsers/slavedriver")
-					SlaveDriverParser.extractLev(mainWindow, data, fileName, directoryPath, false, true, false, "Quake")
+				let SlaveDriverParser = require("./parsers/slavedriver")
+				SlaveDriverParser.extractLev(mainWindow, data, fileName, directoryPath, false, true, false, "Quake")
 			} else if (actionType == "levduke-extract-textures") {
 				let SlaveDriverParser = require("./parsers/slavedriver")
 				SlaveDriverParser.extractLev(mainWindow, data, fileName, directoryPath, false, true, false, "Duke3D")
